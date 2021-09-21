@@ -90,7 +90,7 @@ class RegView(ttk.Frame):
 
         label = ttk.Label(self, text=f"Name: {name}")
         label.grid(column=0, columnspan=16, row=0, sticky=(W, E))
-        label = ttk.Label(self, text=f"Address: 0x{address:x}", anchor="e")
+        label = ttk.Label(self, text=f"Address: 0x{address:04x}", anchor="e")
         label.grid(column=16, columnspan=16, row=0, sticky=(W, E))
 
         for column in range(reg_width):
