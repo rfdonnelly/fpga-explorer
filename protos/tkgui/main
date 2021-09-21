@@ -1,0 +1,328 @@
+#!/usr/bin/env python3
+
+from tkinter import *
+from tkinter import ttk
+from tkinter import filedialog
+from tkinter import messagebox
+
+class TreeNav(ttk.Treeview):
+    def __init__(self, parent):
+        columns=("offset", "size")
+        super().__init__(parent, columns=columns)
+        self.heading("#0", text="Name")
+        self.heading("size", text="Size")
+        self.heading("offset", text="Offset")
+
+    def populate_demo_content(self):
+        self.insert('', 'end', 'regs', text="regs", values=("0x0000", "0x1_0000"), open=TRUE)
+        self.insert('regs', 'end', "blk1", text="blk1", values=("0x0000", "0x0_1000"))
+        self.insert('blk1', 'end', text="reg0", values=("0x0", ""))
+        self.insert('blk1', 'end', text="reg1", values=("0x4", ""))
+        self.insert('regs', 'end', "blk2", text="blk2", values=("0x1000", "0x0_1000"))
+        self.insert('blk2', 'end', text="reg0", values=("0x0", ""))
+        self.insert('blk2', 'end', text="reg1", values=("0x4", ""))
+        self.insert('regs', 'end', "blk3", text="blk3", values=("0x2000", "0x0_1000"))
+        self.insert('blk3', 'end', text="reg0", values=("0x0", ""))
+        self.insert('blk3', 'end', text="reg1", values=("0x4", ""))
+        self.insert('', 'end', 'mems', text="mems", values=("0x10_0000", "0x2_0000"))
+
+class FlatNav(ttk.Treeview):
+    def __init__(self, parent):
+        columns=("offset")
+        super().__init__(parent, columns=columns)
+        self.heading("#0", text="Name")
+        self.heading("offset", text="Offset")
+
+    def populate_demo_content(self):
+        self.insert('', 'end', text="blk1.reg0", values=("0x0000"))
+        self.insert('', 'end', text="blk1.reg1", values=("0x0004"))
+        self.insert('', 'end', text="blk2.reg0", values=("0x1000"))
+        self.insert('', 'end', text="blk2.reg1", values=("0x1004"))
+        self.insert('', 'end', text="blk3.reg0", values=("0x2000"))
+        self.insert('', 'end', text="blk3.reg1", values=("0x2004"))
+
+class Menubar(Menu):
+    def __init__(self, root):
+        super().__init__(root)
+        self.root = root
+        root.option_add("*tearOff", FALSE)
+
+        self.file_menu = Menu(self)
+        self.help_menu = Menu(self)
+        self.add_cascade(menu=self.file_menu, label="File")
+        self.add_cascade(menu=self.help_menu, label="Help")
+        self.file_menu.add_command(label="Connect...", command=self.do_nothing)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Load Map...", command=filedialog.askopenfilename)
+        self.file_menu.add_command(label="Load Script...", command=filedialog.askopenfilename)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Exit", command=root.destroy, accelerator="Ctrl+W")
+        self.help_menu.add_command(label="Help", command=self.do_nothing)
+        self.help_menu.add_separator()
+        self.help_menu.add_command(label="About", command=self.do_about)
+
+        root.bind_all("<Control-w>", self.exit)
+
+        root.config(menu=self)
+
+    def do_about(self):
+        messagebox.showinfo(title="About", message="FPGA Explorer v0.1")
+
+    def do_nothing(self):
+        var = 0
+
+    def exit(self, event):
+        self.root.destroy()
+
+class RegView(ttk.Frame):
+    def __init__(self, parent, name="", address=0, value=0, fields=[]):
+        super().__init__(parent)
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
+        reg_width = 32
+
+        label = ttk.Label(self, text=f"Name: {name}")
+        label.grid(column=0, columnspan=16, row=0, sticky=(W, E))
+        label = ttk.Label(self, text=f"Address: 0x{address:x}", anchor="e")
+        label.grid(column=16, columnspan=16, row=0, sticky=(W, E))
+
+        for column in range(reg_width):
+            index = reg_width - column - 1
+            label = ttk.Label(self, text=index, borderwidth=1, relief="solid", anchor="center")
+            if (column % 8 < 4):
+                label.config(background="light gray")
+            label.grid(column=column, row=1, sticky=(W, E))
+            self.columnconfigure(column, weight=1)
+
+        field_height = self.get_max_field_height(fields)
+        for index, field in enumerate(fields):
+            column = reg_width - (field["lsb"] + field["nbits"])
+            columnspan = field["nbits"]
+            # label = ttk.Label(self, text=field["name"], borderwidth=1, relief="solid", anchor="center")
+            # label.grid(column=column, columnspan=columnspan, row=2, sticky=(W, E))
+            # FIXME: Experiment to create a Canvas based label to enable text rotation
+            label = FieldName(self, name=field["name"], nbits=field["nbits"], height=field_height)
+            label.grid(column=column, columnspan=columnspan, row=2, sticky=(W, E))
+            label = ttk.Label(self, text=f"0x{field['value']:x}", borderwidth=1, relief="solid", anchor="center", background="white")
+            label.grid(column=column, columnspan=columnspan, row=3, sticky=(W, E))
+
+        for row in range(5):
+            self.rowconfigure(row, weight=1)
+
+        label = ttk.Label(self, text=f"0x{value:08x}", borderwidth=1, relief="solid", anchor="center", background="white")
+        label.grid(column=0, columnspan=32, row=4, sticky=(W, E))
+
+    def get_max_field_height(self, fields):
+        return max([self.get_field_height(field) for field in fields])
+
+    def get_field_height(self, field):
+        len_name = len(field["name"])
+        rotate = len_name > 2*field["nbits"]
+
+        if (rotate):
+            return len_name * 7
+        else:
+            return 15
+
+# Use a canvas instead of a label to allow text rotation
+class FieldName(ttk.Frame):
+    def __init__(self, parent, name="null", nbits=1, height=1):
+        super().__init__(parent, borderwidth=1, relief="solid")
+
+        width = 0
+        angle = 0
+        rotate = len(name) > 2*nbits
+
+        if (rotate):
+            width = 15
+            angle = 90
+        else:
+            width = len(name) * 10
+            angle = 0
+
+        self.canvas = Canvas(self, height=height, width=width)
+        self.canvas.grid(column=0, row=0, sticky=(W, E))
+        self.columnconfigure(0, weight=1)
+        self.canvas.bind("<Configure>", self.on_resize)
+        self.text = self.canvas.create_text(self.canvas.winfo_width()/2, 10, text=name, anchor="center", angle=angle)
+
+    def on_resize(self, event):
+        self.canvas.coords(self.text, event.width/2, event.height/2)
+
+class GUI:
+    def __init__(self):
+        self.docked = 1
+
+        self.root = Tk()
+        self.root.title("FPGA Explorer")
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+
+        menu = Menubar(self.root)
+
+        self.split_h = ttk.Panedwindow(self.root, orient=HORIZONTAL)
+        self.split_h.grid(column=0, row=0, sticky=(N, S, W, E))
+        self.left = ttk.Frame(self.split_h)
+        self.left.grid(column=0, row=0, sticky=(N, S, W, E))
+        self.left.columnconfigure(0, weight=1)
+        self.left.rowconfigure(0, weight=1)
+        self.right = Frame(self.split_h, width=100)
+        self.right.grid(column=0, row=0, sticky=(N, S, W, E))
+        self.right.columnconfigure(0, weight=1)
+        self.right.rowconfigure(0, weight=1)
+        self.split_h.add(self.left, weight=1)
+        self.split_h.add(self.right, weight=2)
+
+        self.treenav = TreeNav(self.left)
+        self.treenav.grid(column=0, row=0, sticky=(N, S, W, E))
+        self.treenav.populate_demo_content()
+
+        self.flatnav = FlatNav(self.left)
+        self.flatnav.grid(column=0, row=1, sticky=(N, S, W, E))
+        self.flatnav.populate_demo_content()
+
+        regs = [
+            {
+                "name": "regs.blk0.reg0",
+                "address": 0x0,
+                "value": 0x600dc0de,
+                "fields": [
+                    {
+                        "name": "f4",
+                        "nbits": 4,
+                        "lsb": 28,
+                        "value": 0x6,
+                    }, {
+                        "name": "rsvd1",
+                        "nbits": 8,
+                        "lsb": 20,
+                        "value": 0x00,
+                    }, {
+                        "name": "f3",
+                        "nbits": 8,
+                        "lsb": 12,
+                        "value": 0xdc,
+                    }, {
+                        "name": "rsvd0",
+                        "nbits": 4,
+                        "lsb": 8,
+                        "value": 0x0,
+                    }, {
+                        "name": "f1",
+                        "nbits": 4,
+                        "lsb": 4,
+                        "value": 0xd,
+                    }, {
+                        "name": "long_field_name",
+                        "nbits": 4,
+                        "lsb": 0,
+                        "value": 0xe,
+                    },
+                ],
+            }, {
+                "name": "regs.blk0.reg1",
+                "address": 0x4,
+                "value": 0x0000000,
+                "fields": [
+                    {
+                        "name": "f3",
+                        "nbits": 8,
+                        "lsb": 24,
+                        "value": 0x00,
+                    }, {
+                        "name": "f2",
+                        "nbits": 8,
+                        "lsb": 16,
+                        "value": 0x00,
+                    }, {
+                        "name": "f1",
+                        "nbits": 8,
+                        "lsb": 8,
+                        "value": 0x00,
+                    }, {
+                        "name": "f0",
+                        "nbits": 8,
+                        "lsb": 0,
+                        "value": 0xDC,
+                    },
+                ],
+            }, {
+                "name": "regs.blk1.reg0",
+                "address": 0x1000,
+                "value": 0x600df00d,
+                "fields": [
+                    {
+                        "name": "address",
+                        "nbits": 32,
+                        "lsb": 0,
+                        "value": 0x600df00d,
+                    },
+                ],
+            }, {
+                "name": "regs.blk1.reg1",
+                "address": 0x1004,
+                "value": 0x600dc0de,
+                "fields": [
+                    {
+                        "name": "f4",
+                        "nbits": 4,
+                        "lsb": 28,
+                        "value": 0x6,
+                    }, {
+                        "name": "rsvd1",
+                        "nbits": 8,
+                        "lsb": 20,
+                        "value": 0x00,
+                    }, {
+                        "name": "f3",
+                        "nbits": 8,
+                        "lsb": 12,
+                        "value": 0xDC,
+                    }, {
+                        "name": "rsvd0",
+                        "nbits": 4,
+                        "lsb": 8,
+                        "value": 0x0,
+                    }, {
+                        "name": "f1",
+                        "nbits": 4,
+                        "lsb": 4,
+                        "value": 0xD,
+                    }, {
+                        "name": "long_field_name",
+                        "nbits": 4,
+                        "lsb": 0,
+                        "value": 0xE,
+                    },
+                ],
+            }
+        ]
+        self.regviews = [RegView(self.right, name=reg["name"], address=reg["address"], value=reg["value"], fields=reg["fields"]) for reg in regs]
+        for index, regview in enumerate(self.regviews):
+            regview.grid(column=0, row=index, sticky=(W, E))
+            self.right.rowconfigure(index, weight=1)
+
+        # self.regview = ttk.Frame(self.split_h)
+
+        self.root.bind("<Control-d>", self.toggle_dock)
+
+        # FIXME: weights aren't working as expected for some reason, they seem
+        # to be ignored here. Maybe the children need to be Frames?
+
+        self.treenav.focus()
+
+    def toggle_dock(self, event):
+        if (self.docked):
+            self.root.wm_manage(self.right)
+        else:
+            self.root.wm_forget(self.right)
+            self.right.grid(column=0, row=0, sticky=(N, S, W, E))
+            self.split_h.add(self.right)
+
+        self.docked ^= 1
+
+    def run(self):
+        self.root.mainloop()
+
+GUI().run()

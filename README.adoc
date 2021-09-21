@@ -1,0 +1,12 @@
+= FPGA Explorer
+
+A GUI for hardware register debug.
+
+== Prototypes
+
+=== Tk GUI
+
+[source,sh]
+----
+protos/tkgui/main
+----

@@ -1,0 +1,65 @@
+= Development References
+
+== Dependencies
+
+https://www.python.org/downloads/[Python]::
+Download and install with the `tcl/tk and IDLE` option.
+
+== GUI
+
+https://tkdocs.com/[TkDocs]::
+A modern multi-language Tk tutorial that covers using Python + Tk via Tkinter.
++
+* Cons
+** Cannot scroll widgets that contain widgets.
+E.g. A view containing multiple register detail views.
+There may be a hack that uses a `Canvas`.
+Not sure this is neeed.
+We may end up only showing a single register detail view at a time.
+** Cannot easily rotate label text.
+Must implement custom label using a `Canvas`.
+** Cannot easily dock/undock views.
+There is some support in the form of `wm manage` and `wm forget` but very cumbersome.
+Difficult to hide/show views.
+Views limited to fixed positions using `Panedwindow`.
+* Pros
+** Bundled with Python for easy distribution
+** IDLE (Python REPL/editor/debugged) also uses Tk.
+Can integrate some of IDLE into app?
+** Basics are pretty easy once you get past the layout stuff.
+
+https://riverbankcomputing.com/software/pyqt/intro[PyQt]::
+High-level Python bindings for Qt.
+
+== Installer
+
+https://www.pyinstaller.org/[PyInstaller]::
+Create a single standalone binary to simplify distribution.
+Does not actually install application but might be used as an intermediate step to creating an installer using something like Inno Setup.
+
+https://jrsoftware.org/isinfo.php[Inno Setup]::
+A free installer for Windows programs.
+Installs, creates shortcuts, etc.
+
+== Scripting
+
+=== TCL Scripting
+
+Tkinter provides access to the embedded TCL interpreter.
+Python methods can be called from TCL by creating TCL commands that call Python methods.
+
+[source,python]
+----
+import tkinter
+
+tcl = Tcl()
+
+def hello_from(source):
+    print(f"hello from {source}")
+
+tcl.tk.createcommand("hello_from", hello_from)
+
+hello_from("python")
+tcl.tk.eval("hello_from tcl")
+----
+
