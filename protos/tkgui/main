@@ -5,6 +5,8 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 
+import math
+
 class TreeNav(ttk.Treeview):
     def __init__(self, parent):
         columns=("offset", "size")
@@ -42,28 +44,32 @@ class FlatNav(ttk.Treeview):
         self.insert('', 'end', text="blk3.reg1", values=("0x2004"))
 
 class Menubar(Menu):
-    def __init__(self, root):
-        super().__init__(root)
-        self.root = root
-        root.option_add("*tearOff", FALSE)
+    def __init__(self, ui):
+        super().__init__(ui.root)
+        self.ui = ui
+        self.root = ui.root
+        self.root.option_add("*tearOff", FALSE)
 
         self.file_menu = Menu(self)
         self.help_menu = Menu(self)
         self.add_cascade(menu=self.file_menu, label="File")
         self.add_cascade(menu=self.help_menu, label="Help")
-        self.file_menu.add_command(label="Connect...", command=self.do_nothing)
+        self.file_menu.add_command(label="Connect...", command=self.do_connect)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Load Map...", command=filedialog.askopenfilename)
         self.file_menu.add_command(label="Load Script...", command=filedialog.askopenfilename)
         self.file_menu.add_separator()
-        self.file_menu.add_command(label="Exit", command=root.destroy, accelerator="Ctrl+W")
+        self.file_menu.add_command(label="Exit", command=self.root.destroy, accelerator="Ctrl+W")
         self.help_menu.add_command(label="Help", command=self.do_nothing)
         self.help_menu.add_separator()
         self.help_menu.add_command(label="About", command=self.do_about)
 
-        root.bind_all("<Control-w>", self.exit)
+        self.root.bind_all("<Control-w>", self.exit)
 
-        root.config(menu=self)
+        self.root.config(menu=self)
+
+    def do_connect(self):
+        self.ui.statusbar["text"] = "Connected"
 
     def do_about(self):
         messagebox.showinfo(title="About", message="FPGA Explorer v0.1")
@@ -104,7 +110,8 @@ class RegView(ttk.Frame):
             # FIXME: Experiment to create a Canvas based label to enable text rotation
             label = FieldName(self, name=field["name"], nbits=field["nbits"], height=field_height)
             label.grid(column=column, columnspan=columnspan, row=2, sticky=(W, E))
-            label = ttk.Label(self, text=f"0x{field['value']:x}", borderwidth=1, relief="solid", anchor="center", background="white")
+            hex_digits = math.ceil(field["nbits"]/4)
+            label = ttk.Label(self, text=f"0x{field['value']:0{hex_digits}x}", borderwidth=1, relief="solid", anchor="center", background="white")
             label.grid(column=column, columnspan=columnspan, row=3, sticky=(W, E))
 
         for row in range(5):
@@ -159,16 +166,35 @@ class GUI:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
 
-        menu = Menubar(self.root)
+        menu = Menubar(self)
 
-        self.split_h = ttk.Panedwindow(self.root, orient=HORIZONTAL)
-        self.split_h.grid(column=0, row=0, sticky=(N, S, W, E))
+        self.statusbar = ttk.Label(self.root, text="Not connected", anchor=E)
+        self.statusbar.pack(side=BOTTOM, fill=X)
+        menu.statusbar = self.statusbar
+
+        self.split_v = ttk.Panedwindow(self.root, orient=VERTICAL)
+        self.split_v.pack(fill=BOTH, expand=TRUE)
+        self.top = ttk.Frame(self.split_v)
+        self.top.pack(fill=BOTH, expand=TRUE)
+        self.bottom = ttk.Frame(self.split_v)
+        self.bottom.pack(fill=BOTH, expand=TRUE)
+        self.split_v.add(self.top, weight=4)
+        self.split_v.add(self.bottom, weight=1)
+
+        self.console = Text(self.bottom, height=10)
+        self.console.pack(fill=BOTH, expand=TRUE)
+        self.console.insert("1.0", "FPGA Explorer v0.1\n")
+        self.console.insert("2.0", "Type \"help\" for more information.\n")
+        self.console.insert("3.0", ">>> ")
+
+        self.split_h = ttk.Panedwindow(self.top, orient=HORIZONTAL)
+        self.split_h.pack(fill=BOTH, expand=TRUE)
         self.left = ttk.Frame(self.split_h)
-        self.left.grid(column=0, row=0, sticky=(N, S, W, E))
+        self.left.pack(fill=BOTH, expand=TRUE)
         self.left.columnconfigure(0, weight=1)
         self.left.rowconfigure(0, weight=1)
         self.right = Frame(self.split_h, width=100)
-        self.right.grid(column=0, row=0, sticky=(N, S, W, E))
+        self.right.pack(fill=BOTH, expand=TRUE)
         self.right.columnconfigure(0, weight=1)
         self.right.rowconfigure(0, weight=1)
         self.split_h.add(self.left, weight=1)
@@ -250,13 +276,13 @@ class GUI:
             }, {
                 "name": "regs.blk1.reg0",
                 "address": 0x1000,
-                "value": 0x600df00d,
+                "value": 0x0badf00d,
                 "fields": [
                     {
                         "name": "address",
                         "nbits": 32,
                         "lsb": 0,
-                        "value": 0x600df00d,
+                        "value": 0x0badf00d,
                     },
                 ],
             }, {
