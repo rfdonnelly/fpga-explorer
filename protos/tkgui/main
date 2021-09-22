@@ -212,7 +212,7 @@ class GUI:
         self.statusbar.pack(side=BOTTOM, fill=X)
         menu.statusbar = self.statusbar
 
-        self.split_v = ttk.Panedwindow(self.root, orient=VERTICAL)
+        self.split_v = ttk.Panedwindow(self.root, orient=VERTICAL, height=600)
         self.split_v.pack(fill=BOTH, expand=TRUE)
         self.top = ttk.Frame(self.split_v)
         self.top.pack(fill=BOTH, expand=TRUE)
