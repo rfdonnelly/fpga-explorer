@@ -448,6 +448,14 @@ class GUI:
 
         self.root.bind("<Control-d>", self.toggle_dock)
 
+        # Set the split sash position
+        #
+        # First we need to update for the initial layout, then we can set the
+        # sash position.  If we don't update, an update will be performed
+        # automatically after setting the sash position and overwrite it.
+        self.root.update()
+        self.split_h.sashpos(0, 400)
+
         # self.treenav.focus()
 
     def show_prompt(self):
