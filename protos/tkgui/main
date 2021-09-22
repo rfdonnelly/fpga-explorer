@@ -23,7 +23,7 @@ class TreeNav(ttk.Treeview):
 
     def load_items(self, items):
         parent_id = ""
-        to_visit = [(id, parent_id) for id in items["top"]["children"]]
+        to_visit = [(id, parent_id) for id in items["root"]["children"]]
 
         while len(to_visit) > 0:
             (id, parent_id) = to_visit.pop(0)
@@ -256,7 +256,7 @@ class GUI:
         # self.flatnav.populate_demo_content()
 
         self.items = {
-            "top": {
+            "root": {
                 "type": "root",
                 "children": [
                     "regs",
