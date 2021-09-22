@@ -89,10 +89,19 @@ class Menubar(Menu):
         self.root.destroy()
 
 class RegView(ttk.Frame):
-    def __init__(self, parent, name="", address=0, value=0, fields=[]):
+    def __init__(self, parent, reg):
         super().__init__(parent)
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
+        self.load_reg(reg)
+
+    def unload_reg(self):
+        for widget in self.grid_slaves():
+            widget.destroy()
+
+    def load_reg(self, reg):
+        name = reg["name"]
+        address = reg["address"]
+        value = reg["value"]
+        fields = reg["fields"]
 
         reg_width = 32
 
@@ -341,10 +350,12 @@ class GUI:
                 ],
             },
         }
-        self.regviews = [RegView(self.right, name=reg["name"], address=reg["address"], value=reg["value"], fields=reg["fields"]) for reg in self.regs.values()]
+        reg = list(self.regs.values())[0]
+        self.regviews = [RegView(self.right, reg)]
         for index, regview in enumerate(self.regviews):
-            regview.grid(column=0, row=index, sticky=(W, E))
-            self.right.rowconfigure(index, weight=1)
+            regview.pack(side=TOP, fill=X, padx=(0, 5))
+            # regview.grid(column=0, row=index, sticky=(W, E))
+            # self.right.rowconfigure(index, weight=1)
 
         # self.regview = ttk.Frame(self.split_h)
 
@@ -399,6 +410,8 @@ class GUI:
 
         reg = self.regs.get(item_full_name)
         if reg is not None:
+            self.regviews[0].unload_reg()
+            self.regviews[0].load_reg(reg)
             self.console_write(f"read({reg['name']})\n")
             self.console_write(f"0x{reg['value']:08x}\n")
             self.show_prompt()
