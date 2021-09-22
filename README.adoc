@@ -8,5 +8,5 @@ A GUI for hardware register debug.
 
 [source,sh]
 ----
-protos/tkgui/main
+protos/tkgui/main.pyw
 ----
