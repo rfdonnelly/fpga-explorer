@@ -178,6 +178,9 @@ class GUI:
         self.top.pack(fill=BOTH, expand=TRUE)
         self.bottom = ttk.Frame(self.split_v)
         self.bottom.pack(fill=BOTH, expand=TRUE)
+        # FIXME: weights aren't working as expected for some reason, they seem
+        # to be ignored here. Maybe the children need to be Frames? Sizing
+        # seems to be dictated by children.
         self.split_v.add(self.top, weight=4)
         self.split_v.add(self.bottom, weight=1)
 
@@ -185,7 +188,9 @@ class GUI:
         self.console.pack(fill=BOTH, expand=TRUE)
         self.console.insert("1.0", "FPGA Explorer v0.1\n")
         self.console.insert("2.0", "Type \"help\" for more information.\n")
-        self.console.insert("3.0", ">>> ")
+        self.show_prompt()
+        self.console.bind("<Key-Return>", self.console_enter_callback)
+        self.console.focus_force()
 
         self.split_h = ttk.Panedwindow(self.top, orient=HORIZONTAL)
         self.split_h.pack(fill=BOTH, expand=TRUE)
@@ -333,10 +338,45 @@ class GUI:
 
         self.root.bind("<Control-d>", self.toggle_dock)
 
-        # FIXME: weights aren't working as expected for some reason, they seem
-        # to be ignored here. Maybe the children need to be Frames?
+        # self.treenav.focus()
 
-        self.treenav.focus()
+    def show_prompt(self):
+        self.console_write(">>> ")
+        self.console.mark_set("iomark", "insert")
+        self.console.mark_gravity("iomark", "left")
+
+    def console_write(self, s):
+        self.console.insert("insert", s)
+        self.console.see("insert")
+        # self.console.update()
+
+    def console_enter_callback(self, event):
+        line = self.console.get("iomark", "end-1c")
+        self.console_write("\n")
+        if line == "help":
+            import inspect
+            self.console_write(inspect.cleandoc("""
+                Available commands:
+
+                * write(<reg|offset>, <data>) -- Write a named register or offset.
+                * read(<reg|offset>) -- Read a named register or offset.
+            """))
+            self.console_write("\n")
+        elif line == "quit":
+            self.root.destroy()
+            return
+        else:
+            try:
+                result = eval(line)
+                if result:
+                    self.console_write(result)
+                self.console_write("\n")
+            except:
+                self.console_write("Unrecognized command\n")
+                pass
+
+        self.show_prompt()
+        return "break"
 
     def toggle_dock(self, event):
         if (self.docked):
