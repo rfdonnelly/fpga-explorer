@@ -16,12 +16,16 @@ E.g. A view containing multiple register detail views.
 There may be a hack that uses a `Canvas`.
 Not sure this is neeed.
 We may end up only showing a single register detail view at a time.
+*** Possible solution: https://blog.teclado.com/tkinter-scrollable-frames[Scrollable Frames in Tkinter]
+*** Possible solution: https://stackoverflow.com/questions/16188420/tkinter-scrollbar-for-frame[Tkinter scrollbar for frame]
 ** Cannot easily rotate label text.
 Must implement custom label using a `Canvas`.
+*** Solved: https://github.com/rfdonnelly/fpga-explorer/blob/63ff29359c5458bbcdd1aa0435056539221ec3c0/protos/tkgui/main.pyw#L175-L198[63ff293]
 ** Cannot easily dock/undock views.
 There is some support in the form of `wm manage` and `wm forget` but very cumbersome.
 Difficult to hide/show views.
 Views limited to fixed positions using `Panedwindow`.
+*** Partial prototype: https://github.com/rfdonnelly/fpga-explorer/blob/63ff29359c5458bbcdd1aa0435056539221ec3c0/protos/tkgui/main.pyw#L521-L529[63ff293]
 * Pros
 ** Bundled with Python for easy distribution
 ** IDLE (Python REPL/editor/debugged) also uses Tk.
