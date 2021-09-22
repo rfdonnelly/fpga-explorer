@@ -15,6 +15,20 @@ class TreeNav(ttk.Treeview):
         self.heading("size", text="Size")
         self.heading("offset", text="Offset")
 
+    # Load an ancestory map
+    def load(self, amap):
+        parent_id = ""
+        to_visit = [(id, parent_id) for id in amap["top"]]
+
+        while len(to_visit) > 0:
+            (id, parent_id) = to_visit.pop(0)
+            name = id.split(".")[-1]
+            self.insert(parent_id, "end", id, text=name, open=id.count(".") < 1)
+            children = amap.get(id)
+            if children is not None:
+                for child_id in children:
+                    to_visit.append((child_id, id))
+
     def item_full_name(self, item_id):
         full_name = self.item(item_id, "text")
         while self.parent(item_id) != "":
@@ -224,12 +238,43 @@ class GUI:
 
         self.treenav = TreeNav(self.left)
         self.treenav.grid(column=0, row=0, sticky=(N, S, W, E))
-        self.treenav.populate_demo_content()
         self.treenav.bind("<<TreeviewSelect>>", self.treenav_select_callback)
 
         self.flatnav = FlatNav(self.left)
         self.flatnav.grid(column=0, row=1, sticky=(N, S, W, E))
         self.flatnav.populate_demo_content()
+
+        # Ancestory map
+        self.amap = {
+            "top": [
+                "regs",
+                "mems",
+            ],
+            "regs": [
+                "regs.blk0",
+                "regs.blk1",
+                "regs.blk2",
+            ],
+            "mems": [
+                "tx",
+                "rx",
+            ],
+            "regs.blk0": [
+                "regs.blk0.reg0",
+                "regs.blk0.reg1",
+            ],
+            "regs.blk1": [
+                "regs.blk1.reg0",
+                "regs.blk1.reg1",
+            ],
+            "regs.blk2": [
+                "regs.blk2.reg0",
+                "regs.blk2.reg1",
+            ],
+        }
+        self.treenav.load(self.amap)
+        self.treenav.see("regs.blk0.reg0")
+        self.treenav.selection_set("regs.blk0.reg0")
 
         self.regs = {
             "regs.blk0.reg0": {
