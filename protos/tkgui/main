@@ -25,15 +25,15 @@ class TreeNav(ttk.Treeview):
 
     def populate_demo_content(self):
         self.insert('', 'end', 'regs', text="regs", values=("0x0000", "0x1_0000"), open=TRUE)
-        self.insert('regs', 'end', "blk1", text="blk1", values=("0x0000", "0x0_1000"))
-        self.insert('blk1', 'end', text="reg0", values=("0x0", ""))
-        self.insert('blk1', 'end', text="reg1", values=("0x4", ""))
-        self.insert('regs', 'end', "blk2", text="blk2", values=("0x1000", "0x0_1000"))
-        self.insert('blk2', 'end', text="reg0", values=("0x0", ""))
-        self.insert('blk2', 'end', text="reg1", values=("0x4", ""))
-        self.insert('regs', 'end', "blk3", text="blk3", values=("0x2000", "0x0_1000"))
-        self.insert('blk3', 'end', text="reg0", values=("0x0", ""))
-        self.insert('blk3', 'end', text="reg1", values=("0x4", ""))
+        self.insert('regs', 'end', "regs.blk0", text="blk0", values=("0x0000", "0x0_1000"))
+        self.insert('regs.blk0', 'end', text="reg0", values=("0x0", ""))
+        self.insert('regs.blk0', 'end', text="reg1", values=("0x4", ""))
+        self.insert('regs', 'end', "regs.blk1", text="blk1", values=("0x1000", "0x0_1000"))
+        self.insert('regs.blk1', 'end', text="reg0", values=("0x0", ""))
+        self.insert('regs.blk1', 'end', text="reg1", values=("0x4", ""))
+        self.insert('regs', 'end', "regs.blk2", text="regs.blk2", values=("0x2000", "0x0_1000"))
+        self.insert('regs.blk2', 'end', text="reg0", values=("0x0", ""))
+        self.insert('regs.blk2', 'end', text="reg1", values=("0x4", ""))
         self.insert('', 'end', 'mems', text="mems", values=("0x10_0000", "0x2_0000"))
 
 class FlatNav(ttk.Treeview):
@@ -44,12 +44,12 @@ class FlatNav(ttk.Treeview):
         self.heading("offset", text="Offset")
 
     def populate_demo_content(self):
-        self.insert('', 'end', text="blk1.reg0", values=("0x0000"))
-        self.insert('', 'end', text="blk1.reg1", values=("0x0004"))
-        self.insert('', 'end', text="blk2.reg0", values=("0x1000"))
-        self.insert('', 'end', text="blk2.reg1", values=("0x1004"))
-        self.insert('', 'end', text="blk3.reg0", values=("0x2000"))
-        self.insert('', 'end', text="blk3.reg1", values=("0x2004"))
+        self.insert('', 'end', text="blk0.reg0", values=("0x0000"))
+        self.insert('', 'end', text="blk0.reg1", values=("0x0004"))
+        self.insert('', 'end', text="blk1.reg0", values=("0x1000"))
+        self.insert('', 'end', text="blk1.reg1", values=("0x1004"))
+        self.insert('', 'end', text="blk2.reg0", values=("0x2000"))
+        self.insert('', 'end', text="blk2.reg1", values=("0x2004"))
 
 class Menubar(Menu):
     def __init__(self, ui):
