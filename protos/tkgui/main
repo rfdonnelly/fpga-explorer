@@ -113,9 +113,8 @@ class Menubar(Menu):
         self.root.destroy()
 
 class RegView(ttk.Frame):
-    def __init__(self, parent, reg):
+    def __init__(self, parent):
         super().__init__(parent)
-        self.load_reg(reg)
 
     def unload_reg(self):
         for widget in self.grid_slaves():
@@ -437,16 +436,13 @@ class GUI:
             },
         }
 
-        reg = self.items.get("regs.blk0.reg0")
-        self.regviews = [RegView(self.right, reg)]
-        for index, regview in enumerate(self.regviews):
-            regview.pack(side=TOP, fill=X, padx=(0, 5))
-            # regview.grid(column=0, row=index, sticky=(W, E))
-            # self.right.rowconfigure(index, weight=1)
+        self.regview = RegView(self.right)
+        self.regview.pack(side=TOP, fill=X, padx=(0, 5))
 
         self.treenav.load_items(self.items)
         self.treenav.see("regs.blk0.reg0")
         self.treenav.selection_set("regs.blk0.reg0")
+        self.regview.load_reg(self.items.get("regs.blk0.reg0"))
 
         # self.regview = ttk.Frame(self.split_h)
 
@@ -501,8 +497,8 @@ class GUI:
 
         reg = self.items.get(item_full_name)
         if reg is not None and reg.get("type") == "reg":
-            self.regviews[0].unload_reg()
-            self.regviews[0].load_reg(reg)
+            self.regview.unload_reg()
+            self.regview.load_reg(reg)
             self.console_write(f"read({reg['name']})\n")
             self.console_write(f"0x{reg['value']:08x}\n")
             self.show_prompt()
