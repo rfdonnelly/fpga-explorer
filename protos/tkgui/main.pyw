@@ -447,6 +447,9 @@ class GUI:
         # self.regview = ttk.Frame(self.split_h)
 
         self.root.bind("<Control-d>", self.toggle_dock)
+        import pathlib
+        ico_path = pathlib.Path(__file__).parent.resolve().joinpath("chip.ico")
+        self.root.iconbitmap(ico_path)
 
         # Set the split sash position
         #
