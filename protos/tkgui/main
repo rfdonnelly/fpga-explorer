@@ -237,17 +237,13 @@ class GUI:
         self.split_h.pack(fill=BOTH, expand=TRUE)
         self.left = ttk.Frame(self.split_h)
         self.left.pack(fill=BOTH, expand=TRUE)
-        self.left.columnconfigure(0, weight=1)
-        self.left.rowconfigure(0, weight=1)
-        self.right = Frame(self.split_h, width=100)
+        self.right = Frame(self.split_h)
         self.right.pack(fill=BOTH, expand=TRUE)
-        self.right.columnconfigure(0, weight=1)
-        self.right.rowconfigure(0, weight=1)
         self.split_h.add(self.left, weight=1)
         self.split_h.add(self.right, weight=2)
 
         self.treenav = TreeNav(self.left)
-        self.treenav.grid(column=0, row=0, sticky=(N, S, W, E))
+        self.treenav.pack(fill=BOTH, expand=TRUE)
         # self.treenav.populate_demo_content()
         self.treenav.bind("<<TreeviewSelect>>", self.treenav_select_callback)
 
@@ -516,7 +512,7 @@ class GUI:
             self.root.wm_manage(self.right)
         else:
             self.root.wm_forget(self.right)
-            self.right.grid(column=0, row=0, sticky=(N, S, W, E))
+            self.right.pack(fill=BOTH, expand=TRUE)
             self.split_h.add(self.right)
 
         self.docked ^= 1
