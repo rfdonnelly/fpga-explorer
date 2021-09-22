@@ -449,7 +449,11 @@ class GUI:
         self.root.bind("<Control-d>", self.toggle_dock)
         import pathlib
         ico_path = pathlib.Path(__file__).parent.resolve().joinpath("chip.ico")
-        self.root.iconbitmap(ico_path)
+        try:
+            self.root.iconbitmap(ico_path)
+        except:
+            print(f"warning: resource not found at path '{ico_path}'")
+            pass
 
         # Set the split sash position
         #
