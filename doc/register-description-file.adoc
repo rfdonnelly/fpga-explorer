@@ -48,7 +48,7 @@ Elements are organized into a tree which is used to provide views into the desig
 There are four element types.
 
 * `root`
-* `block`
+* `blk`
 * `reg`
 * `mem`
 
@@ -73,14 +73,14 @@ root:
     - child1
 ----
 
-=== Block Elements (`block`)
+=== Block Elements (`blk`)
 
 Block elements are a grouping other elements.
-They are identified as blocks via the `type: block` key-value pair.
-Block elements can contain `reg`, `mem`, and other `block` elements.
+They are identified as blocks via the `type: blk` key-value pair.
+Block elements can contain `reg`, `mem`, and other `blk` elements.
 They have the following keys:
 
-* `type`: `block`
+* `type`: `blk`
 * `offset`: The offset (bytes) of the memory relative to its parent.
 * `size`: The size (bytes) of the memory.
 * `children`: A sequence of element IDs.
@@ -89,7 +89,7 @@ They have the following keys:
 .Block element example
 ----
 block0:
-  type: block
+  type: blk
   offset: 0x0
   size: 0x1000
   children:
