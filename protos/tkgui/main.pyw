@@ -150,6 +150,7 @@ class RegFieldTable(ttk.Frame):
         for column, heading in enumerate(headings):
             label = ttk.Label(self, text=heading, borderwidth=1, relief="solid", padding=5)
             label.grid(column=column, row=0, sticky=(W, E))
+            label.config(background="light gray")
             self.columnconfigure(column, weight=weights[column])
 
         for field_index, field in enumerate(reversed(fields)):
