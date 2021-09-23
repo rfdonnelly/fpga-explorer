@@ -154,3 +154,97 @@ They have the following keys:
 * `offset`: The offset (bytes) of the memory relative to its parent.
 * `size`: The size (bytes) of the memory.
 * `doc`: The documentation for the memory.
+
+== Register Description File Example
+
+[source,yaml]
+.`register_description.yml`
+----
+root:
+  type: root
+  children:
+    - regs
+    - mems
+
+regs:
+  type: blk
+  offset: 0x0
+  size: 0x1_0000
+  children:
+    - regs.blk0
+    - regs.blk1
+
+mems:
+  type: blk
+  offset: 0x1_0000
+  size: 0x1_0000
+  children:
+    - mems.mem0
+    - mems.mem1
+
+regs.blk0:
+  type: blk
+  offset: 0x0
+  size: 0x1000
+  children:
+    - regs.blk0.reg0
+    - regs.blk0.reg1
+
+regs.blk1:
+  type: blk
+  offset: 0x1000
+  size: 0x1000
+  children:
+    - regs.blk1.reg0
+    - regs.blk1.reg1
+
+regs.blk0.reg0:
+  type: reg
+  name: regs.blk0.reg0
+  offset: 0x0
+  fields:
+    - name: field
+      lsb: 0
+      nbits: 32
+      access: rw
+
+regs.blk0.reg1:
+  type: reg
+  name: regs.blk0.reg1
+  offset: 0x0
+  fields:
+    - name: field
+      lsb: 0
+      nbits: 32
+      access: rw
+
+regs.blk1.reg0:
+  type: reg
+  name: regs.blk1.reg0
+  offset: 0x0
+  fields:
+    - name: field
+      lsb: 0
+      nbits: 32
+      access: rw
+
+regs.blk1.reg1:
+  type: reg
+  name: regs.blk1.reg1
+  offset: 0x0
+  fields:
+    - name: field
+      lsb: 0
+      nbits: 32
+      access: rw
+
+mems.mem0:
+  type: mem
+  offset: 0x0
+  size: 0x8000
+
+mems.mem1:
+  type: mem
+  offset: 0x8000
+  size: 0x8000
+----
