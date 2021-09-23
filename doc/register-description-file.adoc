@@ -5,19 +5,15 @@ Register Explorer uses a register description file to provide a hierarchical vie
 The register description files use YAML syntax, and must have either a `.yml` or .yaml file extension.
 If you're new to YAML and want to learn more, see "https://learnxinyminutes.com/docs/yaml/Learn[YAML in Y minutes]."
 
+Register description files are intended to be generated via a register automation solution.
+
 == Root Object
 
 The root object is a map of elements indexed by element ID.
 
 [source,yaml]
-.Example register description
+.Partial register description example
 ----
-root:
-  type: root
-  children:
-    - reg0
-    - reg1
-
 reg0:
   type: reg
   name: reg0
@@ -43,9 +39,24 @@ reg1:
       access: ro
 ----
 
+== Metadata
+
+Because the register description will likely change from version to version of the DUT, an optional metadata key is provided on the root object.
+The metadata key provides a method of communicating version information for matching a version of the register description to a version of the DUT.
+
+[source,yaml]
+.Metadata example
+----
+metadata:
+  dut:
+    name: Example DUT
+    version: v0.1
+----
+
 == Elements
 
 Elements are specified in a flat structure and describe a tree structure via element to element references.
+A flat structure is used to simplify and optimize lookups.
 
 There are four element types.
 
@@ -162,6 +173,11 @@ They have the following keys:
 [source,yaml]
 .`register_description.yml`
 ----
+metadata:
+  dut:
+    name: Example DUT
+    version: v0.1
+
 root:
   type: root
   children:
