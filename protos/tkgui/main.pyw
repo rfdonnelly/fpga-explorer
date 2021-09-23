@@ -125,6 +125,8 @@ class RegView(ttk.Frame):
             widget.destroy()
 
     def load_reg(self, reg):
+        self.unload_reg()
+
         name = reg["name"]
         address = reg["address"]
         reg_value = reg["value"]
@@ -488,7 +490,6 @@ class GUI:
 
         reg = self.items.get(item_full_name)
         if reg is not None and reg.get("type") == "reg":
-            self.regview.unload_reg()
             self.regview.load_reg(reg)
             self.console_write(f"read({reg['name']})\n")
             self.console_write(f"0x{reg['value']:08x}\n")
