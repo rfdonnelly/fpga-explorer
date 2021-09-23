@@ -13,6 +13,10 @@ def to_hex(i, width=0):
     else:
         return f"0x{i:x}"
 
+def reg_to_field(reg_value, field_lsb, field_nbits):
+    mask = (1 << field_nbits) - 1
+    return (reg_value >> field_lsb) & mask
+
 class TreeNav(ttk.Treeview):
     def __init__(self, parent):
         columns=("offset", "size")
@@ -123,7 +127,7 @@ class RegView(ttk.Frame):
     def load_reg(self, reg):
         name = reg["name"]
         address = reg["address"]
-        value = reg["value"]
+        reg_value = reg["value"]
         fields = reg["fields"]
 
         reg_width = 32
@@ -150,14 +154,15 @@ class RegView(ttk.Frame):
             # FIXME: Experiment to create a Canvas based label to enable text rotation
             label = FieldName(self, name=field["name"], nbits=field["nbits"], height=field_height)
             label.grid(column=column, columnspan=columnspan, row=2, sticky=(W, E))
-            hex_digits = math.ceil(field["nbits"]/4)
-            label = ttk.Label(self, text=f"0x{field['value']:0{hex_digits}x}", borderwidth=1, relief="solid", anchor="center", background="white")
+            field_value = reg_to_field(reg_value, field["lsb"], field["nbits"])
+            field_value = to_hex(field_value, field["nbits"])
+            label = ttk.Label(self, text=field_value, borderwidth=1, relief="solid", anchor="center", background="white")
             label.grid(column=column, columnspan=columnspan, row=3, sticky=(W, E))
 
         for row in range(5):
             self.rowconfigure(row, weight=1)
 
-        label = ttk.Label(self, text=f"0x{value:08x}", borderwidth=1, relief="solid", anchor="center", background="white")
+        label = ttk.Label(self, text=f"0x{reg_value:08x}", borderwidth=1, relief="solid", anchor="center", background="white")
         label.grid(column=0, columnspan=32, row=4, sticky=(W, E))
 
     def get_max_field_height(self, fields):
@@ -323,32 +328,26 @@ class GUI:
                         "name": "f4",
                         "nbits": 4,
                         "lsb": 28,
-                        "value": 0x6,
                     }, {
                         "name": "rsvd1",
                         "nbits": 8,
                         "lsb": 20,
-                        "value": 0x00,
                     }, {
                         "name": "f3",
                         "nbits": 8,
                         "lsb": 12,
-                        "value": 0xdc,
                     }, {
                         "name": "rsvd0",
                         "nbits": 4,
                         "lsb": 8,
-                        "value": 0x0,
                     }, {
                         "name": "f1",
                         "nbits": 4,
                         "lsb": 4,
-                        "value": 0xd,
                     }, {
                         "name": "long_field_name",
                         "nbits": 4,
                         "lsb": 0,
-                        "value": 0xe,
                     },
                 ],
             },
@@ -362,22 +361,18 @@ class GUI:
                         "name": "f3",
                         "nbits": 8,
                         "lsb": 24,
-                        "value": 0x00,
                     }, {
                         "name": "f2",
                         "nbits": 8,
                         "lsb": 16,
-                        "value": 0x00,
                     }, {
                         "name": "f1",
                         "nbits": 8,
                         "lsb": 8,
-                        "value": 0x00,
                     }, {
                         "name": "f0",
                         "nbits": 8,
                         "lsb": 0,
-                        "value": 0xDC,
                     },
                 ],
             },
@@ -391,7 +386,6 @@ class GUI:
                         "name": "address",
                         "nbits": 32,
                         "lsb": 0,
-                        "value": 0x0badf00d,
                     },
                 ],
             },
@@ -399,38 +393,20 @@ class GUI:
                 "type": "reg",
                 "name": "regs.blk1.reg1",
                 "address": 0x1004,
-                "value": 0x600dc0de,
+                "value": 0x00000002,
                 "fields": [
                     {
-                        "name": "f4",
-                        "nbits": 4,
-                        "lsb": 28,
-                        "value": 0x6,
-                    }, {
-                        "name": "rsvd1",
-                        "nbits": 8,
-                        "lsb": 20,
-                        "value": 0x00,
-                    }, {
-                        "name": "f3",
-                        "nbits": 8,
-                        "lsb": 12,
-                        "value": 0xDC,
-                    }, {
                         "name": "rsvd0",
-                        "nbits": 4,
-                        "lsb": 8,
-                        "value": 0x0,
+                        "nbits": 30,
+                        "lsb": 2,
                     }, {
-                        "name": "f1",
-                        "nbits": 4,
-                        "lsb": 4,
-                        "value": 0xD,
+                        "name": "done",
+                        "nbits": 1,
+                        "lsb": 1,
                     }, {
-                        "name": "long_field_name",
-                        "nbits": 4,
+                        "name": "start",
+                        "nbits": 1,
                         "lsb": 0,
-                        "value": 0xE,
                     },
                 ],
             },
