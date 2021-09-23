@@ -480,7 +480,7 @@ class GUI:
         }
 
         self.regview = RegView(self.right)
-        self.regview.pack(side=TOP, fill=X, padx=(0, 5))
+        self.regview.pack(fill=BOTH, expand=TRUE, padx=(0, 5))
 
         self.treenav.load_items(self.items)
         self.treenav.see("regs.blk0.reg0")
