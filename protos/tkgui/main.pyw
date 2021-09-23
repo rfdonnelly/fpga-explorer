@@ -109,7 +109,7 @@ class Menubar(Menu):
         self.root.config(menu=self)
 
     def do_connect(self):
-        self.ui.statusbar["text"] = "Connected"
+        self.ui.status["text"] = "Connected"
 
     def do_about(self):
         messagebox.showinfo(title="About", message="FPGA Explorer v0.1")
@@ -262,9 +262,12 @@ class GUI:
 
         menu = Menubar(self)
 
-        self.statusbar = ttk.Label(self.root, text="Not connected", anchor=E)
+        self.statusbar = ttk.Frame(self.root)
         self.statusbar.pack(side=BOTTOM, fill=X)
-        menu.statusbar = self.statusbar
+        self.sizegrip = ttk.Sizegrip(self.statusbar)
+        self.sizegrip.pack(side=RIGHT)
+        self.status = ttk.Label(self.statusbar, text="Not connected", anchor=E)
+        self.status.pack(side=RIGHT, fill=X)
 
         self.split_v = ttk.Panedwindow(self.root, orient=VERTICAL, height=600)
         self.split_v.pack(fill=BOTH, expand=TRUE)
