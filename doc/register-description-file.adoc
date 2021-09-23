@@ -73,7 +73,7 @@ root:
     - child1
 ----
 
-== Block Elements (`block`)
+=== Block Elements (`block`)
 
 Block elements are a grouping other elements.
 They are identified as blocks via the `type: block` key-value pair.
@@ -154,4 +154,3 @@ They have the following keys:
 * `offset`: The offset (bytes) of the memory relative to its parent.
 * `size`: The size (bytes) of the memory.
 * `doc`: The documentation for the memory.
-
