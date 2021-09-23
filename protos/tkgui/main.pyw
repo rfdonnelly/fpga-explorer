@@ -137,10 +137,13 @@ class RegView(ttk.Frame):
 class RegFieldTable(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
+        self.bind("<Configure>", self.on_resize)
+        self.table_texts = []
 
     def unload_fields(self):
         for widget in self.grid_slaves():
             widget.destroy()
+        self.table_texts = []
 
     def load_fields(self, fields):
         self.unload_fields()
@@ -157,11 +160,28 @@ class RegFieldTable(ttk.Frame):
             lsb = field["lsb"]
             msb = lsb + field["nbits"] - 1
             bits = lsb if msb == lsb else f"{msb}:{lsb}"
-            cells = [bits, field["name"], field["access"], field.get("description")]
+            cells = [bits, field["name"], field["access"], field.get("description") or ""]
+            widths = [5, 50, 7, 50]
             row = field_index + 1
+            row_texts = {}
             for column, cell in enumerate(cells):
-                label = ttk.Label(self, text=cell, borderwidth=1, relief="solid", padding=5)
-                label.grid(column=column, row=row, sticky=(W, E))
+                text = Text(self, height=1, width=widths[column], wrap="word")
+                text.grid(column=column, row=row, sticky=(W, E))
+                text.insert("1.0", cell)
+                row_texts[headings[column]] = text
+                text["state"] = "disabled"
+            self.table_texts.append(row_texts)
+
+
+    def on_resize(self, event):
+        # Resize each row based on the number of description display lines
+        for row_texts in self.table_texts:
+            text = row_texts["Description"]
+            lines = text.count("1.0", "end", "displaylines")
+            for text in row_texts.values():
+                text["height"] = lines
+
+
 
 class RegLayout(ttk.Frame):
     def __init__(self, parent):
@@ -435,6 +455,7 @@ class GUI:
                         "nbits": 8,
                         "lsb": 0,
                         "access": "rw",
+                        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                     },
                 ],
             },
