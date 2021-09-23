@@ -120,14 +120,45 @@ class Menubar(Menu):
     def exit(self, event):
         self.root.destroy()
 
-class RegView(ttk.Frame):
+# A scrollable frame
+#
+# Do not add widths to ScrollableFrame instance directly.  Add them to the
+# container member.
+#
+# Example:
+#
+#    scrollable_frame = ScrollableFrame(root)
+#    ttk.Label(scrollable_frame.container, ...)
+#
+# Source: https://blog.teclado.com/tkinter-scrollable-frames/
+class ScrollableFrame(ttk.Frame):
+    def __init__(self, container, *args, **kwargs):
+        super().__init__(container, *args, **kwargs)
+        canvas = Canvas(self)
+        scrollbar = ttk.Scrollbar(self, orient=VERTICAL, command=canvas.yview)
+        self.container = ttk.Frame(canvas)
+
+        self.container.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=self.container, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
+        scrollbar.pack(side=RIGHT, fill=Y)
+
+class RegView(ScrollableFrame):
     def __init__(self, parent):
         super().__init__(parent)
 
-        self.layout = RegLayout(self)
+        self.layout = RegLayout(self.container)
         self.layout.pack(side=TOP, fill=X, pady=(0, 5))
 
-        self.fieldtable = RegFieldTable(self)
+        self.fieldtable = RegFieldTable(self.container)
         self.fieldtable.pack(side=TOP, fill=X)
 
     def load_reg(self, reg):
