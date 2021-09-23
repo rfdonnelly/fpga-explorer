@@ -223,13 +223,15 @@ class RegLayout(ttk.Frame):
             label.grid(column=column, columnspan=columnspan, row=2, sticky=(W, E))
             field_value = reg_to_field(reg_value, field["lsb"], field["nbits"])
             field_value = to_hex(field_value, field["nbits"])
-            label = ttk.Label(self, text=field_value, borderwidth=1, relief="solid", anchor="center", background="white")
+            label = Entry(self, justify="center")
+            label.insert("0", field_value)
             label.grid(column=column, columnspan=columnspan, row=3, sticky=(W, E))
 
         for row in range(5):
             self.rowconfigure(row, weight=1)
 
-        label = ttk.Label(self, text=f"0x{reg_value:08x}", borderwidth=1, relief="solid", anchor="center", background="white")
+        label = Entry(self, justify="center")
+        label.insert("0", to_hex(reg_value, 32))
         label.grid(column=0, columnspan=32, row=4, sticky=(W, E))
 
     def get_max_field_height(self, fields):
