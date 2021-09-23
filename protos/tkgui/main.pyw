@@ -112,7 +112,7 @@ class Menubar(Menu):
         self.ui.status["text"] = "Connected"
 
     def do_about(self):
-        messagebox.showinfo(title="About", message="FPGA Explorer v0.1")
+        messagebox.showinfo(title="About", message="Register Explorer v0.1")
 
     def do_nothing(self):
         var = 0
@@ -180,8 +180,6 @@ class RegFieldTable(ttk.Frame):
             lines = text.count("1.0", "end", "displaylines")
             for text in row_texts.values():
                 text["height"] = lines
-
-
 
 class RegLayout(ttk.Frame):
     def __init__(self, parent):
@@ -276,7 +274,7 @@ class GUI:
         self.docked = 1
 
         self.root = Tk()
-        self.root.title("FPGA Explorer")
+        self.root.title("Register Explorer")
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
 
@@ -303,7 +301,7 @@ class GUI:
 
         self.console = Text(self.bottom, height=10)
         self.console.pack(fill=BOTH, expand=TRUE)
-        self.console.insert("1.0", "FPGA Explorer v0.1\n")
+        self.console.insert("1.0", "Register Explorer v0.1\n")
         self.console.insert("2.0", "Type \"help\" for more information.\n")
         self.show_prompt()
         self.console.bind("<Key-Return>", self.console_enter_callback)

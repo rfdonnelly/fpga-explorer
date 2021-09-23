@@ -1,4 +1,4 @@
-= FPGA Explorer
+= Register Explorer
 
 A GUI for hardware register debug.
 
