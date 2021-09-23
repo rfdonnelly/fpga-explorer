@@ -1,0 +1,157 @@
+= Register Description File
+
+The register description files use YAML syntax, and must have either a `.yml` or .yaml file extension.
+If you're new to YAML and want to learn more, see "https://learnxinyminutes.com/docs/yaml/Learn[YAML in Y minutes]."
+
+== Root Object
+
+The root object is a map of elements indexed by element ID.
+
+[source,yaml]
+.Example register description
+----
+root:
+  type: root
+  children:
+    - reg0
+    - reg1
+
+reg0:
+  type: reg
+  name: reg0
+  offset: 0x0
+  fields:
+    - name: f1
+      lsb: 16
+      nbits: 16
+      access: rw
+    - name: f0
+      lsb: 0
+      nbits: 16
+      access: rw
+
+reg1:
+  type: reg
+  name: reg1
+  offset: 0x4
+  fields:
+    - name: f0
+      lsb: 0
+      nbits: 32
+      access: ro
+----
+
+== Elements
+
+Elements are organized into a tree which is used to provide views into the design.
+
+There are four element types.
+
+* `root`
+* `block`
+* `reg`
+* `mem`
+
+The element type is specified via the element `type` key.
+
+=== The Root Element (`root`)
+
+The register description must contain a single `root` element.
+The `root` element is the entry point into the design.
+It is idenfied as the root node via the `root` element ID and via the `type: root` key-value pair.
+
+The `root` element contains one or more children.
+Children are specified as a sequence of element IDs under the element `chilren` key.
+
+[source,yaml]
+.Root element example
+----
+root:
+  type: root
+  children:
+    - child0
+    - child1
+----
+
+== Block Elements (`block`)
+
+Block elements are a grouping other elements.
+They are identified as blocks via the `type: block` key-value pair.
+Block elements can contain `reg`, `mem`, and other `block` elements.
+They have the following keys:
+
+* `type`: `block`
+* `offset`: The offset (bytes) of the memory relative to its parent.
+* `size`: The size (bytes) of the memory.
+* `children`: A sequence of element IDs.
+
+[source,yaml]
+.Block element example
+----
+block0:
+  type: block
+  offset: 0x0
+  size: 0x1000
+  children:
+    - block1
+    - reg0
+    - mem0
+----
+
+=== Register Elements (`reg`)
+
+Register elements describe 32-bit hardware registers.
+They are identified as registers via the `type: reg` key-value pair.
+They have the following keys:
+
+* `type`: `reg`
+* `id`: A copy of the element ID
+* `offset`: The offset (bytes) of the register relative to its parent.
+* `doc`: The documentation for the register.
+* `fields`: A sequence of field objects.
+
+==== Field Objects
+
+Field objects describe an n-bit register field.
+They have the following keys:
+
+* `name`: The name of the field.
+* `nbits`: The size of the field in bits.
+* `lsb`: The index of the least significant bit of the field relative to the register.
+* `access`: The software access type of the field.
+* `doc`: The documentation for the field.
+
+==== Register Element Example
+
+[source,yaml]
+.Register element example
+----
+reg0:
+  type: reg
+  name: reg0
+  offset: 0x0
+  doc: An example register.
+  fields:
+    - name: f1
+      lsb: 16
+      nbits: 16
+      access: rw
+      doc: An example field.
+    - name: f0
+      lsb: 0
+      nbits: 16
+      access: rw
+      doc: Another example field.
+----
+
+=== Memory Elements (`mem`)
+
+Memory elements describe contiguous blocks of memory.
+They are identified as memories via the `type: mem` key-value pair.
+They have the following keys:
+
+* `type`: `mem`
+* `offset`: The offset (bytes) of the memory relative to its parent.
+* `size`: The size (bytes) of the memory.
+* `doc`: The documentation for the memory.
+
