@@ -161,7 +161,7 @@ class RegFieldTable(ttk.Frame):
             msb = lsb + field["nbits"] - 1
             bits = lsb if msb == lsb else f"{msb}:{lsb}"
             cells = [bits, field["name"], field["access"], field.get("description") or ""]
-            widths = [5, 50, 7, 50]
+            widths = [5, 25, 7, 50]
             row = field_index + 1
             row_texts = {}
             for column, cell in enumerate(cells):
