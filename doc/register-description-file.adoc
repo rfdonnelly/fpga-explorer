@@ -1,9 +1,9 @@
 = Register Description File
 
+Register Explorer uses a register description file to provide a hierarchical view into the design under test (DUT).
+
 The register description files use YAML syntax, and must have either a `.yml` or .yaml file extension.
 If you're new to YAML and want to learn more, see "https://learnxinyminutes.com/docs/yaml/Learn[YAML in Y minutes]."
-
-Register Explorer uses a register description file to provide a hierarchical view into the design under test (DUT).
 
 == Root Object
 
