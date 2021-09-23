@@ -7,11 +7,15 @@ from tkinter import messagebox
 
 import math
 
-def to_hex(i, width=0):
-    if i is None:
+def to_hex(value, nbits=0):
+    if value is None:
         return None
     else:
-        return f"0x{i:x}"
+        if nbits > 0:
+            digits = math.ceil(nbits/4)
+            return f"0x{value:0{digits}x}"
+        else:
+            return f"0x{value:x}"
 
 def reg_to_field(reg_value, field_lsb, field_nbits):
     mask = (1 << field_nbits) - 1
@@ -117,6 +121,48 @@ class Menubar(Menu):
         self.root.destroy()
 
 class RegView(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.layout = RegLayout(self)
+        self.layout.pack(side=TOP, fill=X, pady=(0, 5))
+
+        self.fieldtable = RegFieldTable(self)
+        self.fieldtable.pack(side=TOP, fill=X)
+
+    def load_reg(self, reg):
+        self.layout.load_reg(reg)
+        self.fieldtable.load_fields(reg["fields"])
+
+class RegFieldTable(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+    def unload_fields(self):
+        for widget in self.grid_slaves():
+            widget.destroy()
+
+    def load_fields(self, fields):
+        self.unload_fields()
+
+        headings = ["Bits", "Name", "Access", "Description"]
+        weights = [1, 2, 1, 10]
+        for column, heading in enumerate(headings):
+            label = ttk.Label(self, text=heading, borderwidth=1, relief="solid", padding=5)
+            label.grid(column=column, row=0, sticky=(W, E))
+            self.columnconfigure(column, weight=weights[column])
+
+        for field_index, field in enumerate(reversed(fields)):
+            lsb = field["lsb"]
+            msb = lsb + field["nbits"] - 1
+            bits = lsb if msb == lsb else f"{msb}:{lsb}"
+            cells = [bits, field["name"], field["access"], field.get("description")]
+            row = field_index + 1
+            for column, cell in enumerate(cells):
+                label = ttk.Label(self, text=cell, borderwidth=1, relief="solid", padding=5)
+                label.grid(column=column, row=row, sticky=(W, E))
+
+class RegLayout(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -330,26 +376,32 @@ class GUI:
                         "name": "f4",
                         "nbits": 4,
                         "lsb": 28,
+                        "access": "rw",
                     }, {
                         "name": "rsvd1",
                         "nbits": 8,
                         "lsb": 20,
+                        "access": "ro",
                     }, {
                         "name": "f3",
                         "nbits": 8,
                         "lsb": 12,
+                        "access": "rw",
                     }, {
                         "name": "rsvd0",
                         "nbits": 4,
                         "lsb": 8,
+                        "access": "ro",
                     }, {
                         "name": "f1",
                         "nbits": 4,
                         "lsb": 4,
+                        "access": "rw",
                     }, {
                         "name": "long_field_name",
                         "nbits": 4,
                         "lsb": 0,
+                        "access": "rw",
                     },
                 ],
             },
@@ -363,18 +415,22 @@ class GUI:
                         "name": "f3",
                         "nbits": 8,
                         "lsb": 24,
+                        "access": "rw",
                     }, {
                         "name": "f2",
                         "nbits": 8,
                         "lsb": 16,
+                        "access": "rw",
                     }, {
                         "name": "f1",
                         "nbits": 8,
                         "lsb": 8,
+                        "access": "rw",
                     }, {
                         "name": "f0",
                         "nbits": 8,
                         "lsb": 0,
+                        "access": "rw",
                     },
                 ],
             },
@@ -388,6 +444,8 @@ class GUI:
                         "name": "address",
                         "nbits": 32,
                         "lsb": 0,
+                        "access": "rw",
+                        "description": "The address of the operation.",
                     },
                 ],
             },
@@ -401,14 +459,20 @@ class GUI:
                         "name": "rsvd0",
                         "nbits": 30,
                         "lsb": 2,
+                        "access": "ro",
+                        "description": "Reserved",
                     }, {
                         "name": "done",
                         "nbits": 1,
                         "lsb": 1,
+                        "access": "w1c",
+                        "description": "Set by hardware when the operaiton is complete.",
                     }, {
                         "name": "start",
                         "nbits": 1,
                         "lsb": 0,
+                        "access": "w1s",
+                        "description": "Starts the operation. Cleared by hardware when the operation has started.",
                     },
                 ],
             },
