@@ -1,4 +1,7 @@
 = Register Description File
+:sectnums:
+:toc:
+:toclevels: 4
 
 Register Explorer uses a register description file to provide a hierarchical view into the design under test (DUT).
 
