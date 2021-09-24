@@ -293,3 +293,19 @@ mems.mem1:
   offset: 0x8000
   size: 0x8000
 ----
+
+[listing]
+.Visualization of `register_description.yml`
+----
+root
+├── regs
+│   ├── blk0
+│   │   ├── reg0
+│   │   └── reg0
+│   └── blk1
+│       ├── reg0
+│       └── reg0
+└── mems
+    ├── mem0
+    └── mem1
+----
