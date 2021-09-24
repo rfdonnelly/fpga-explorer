@@ -39,6 +39,30 @@ reg1:
       access: ro
 ----
 
+== Element IDs
+
+Element IDs uniquely identify elements and their location in the hierarchy.
+
+=== Hierarchy
+
+Hierarchy is denoted via the `.` character.
+
+For example, the element ID `regs.blk0.reg0` has the following hierarchy:
+
+[listing]
+----
+regs
+└── blk0
+    └── reg0
+----
+
+=== Reserved Element IDs
+
+There rare two reserved element IDs:
+
+* `root`: The root element.
+* `metadata`: The special metadata key for providing versioning information.
+
 == Metadata
 
 Because the register description will likely change from version to version of the DUT, an optional metadata key is provided on the root object.
