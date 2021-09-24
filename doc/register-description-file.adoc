@@ -301,10 +301,10 @@ root
 ├── regs
 │   ├── blk0
 │   │   ├── reg0
-│   │   └── reg0
+│   │   └── reg1
 │   └── blk1
 │       ├── reg0
-│       └── reg0
+│       └── reg1
 └── mems
     ├── mem0
     └── mem1
