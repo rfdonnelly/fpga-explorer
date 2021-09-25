@@ -28,6 +28,7 @@ function create_input(value) {
 
 function create_layout_table(fields) {
     var t = document.createElement("table");
+    t.className = "layout"
 
     // Bit indexes row
     var th = t.createTHead();
@@ -67,6 +68,7 @@ function create_li(parent, text) {
 
 function create_field_table(fields) {
     var t = document.createElement("table");
+    t.className = "fields"
 
     column_names = [
         "Bits",

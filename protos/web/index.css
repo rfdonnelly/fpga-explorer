@@ -4,6 +4,10 @@ td, th {
     vertical-align: top;
 }
 
+table.layout tr th {
+    text-align: center;
+}
+
 th {
     background-color: lightgray;
 }
