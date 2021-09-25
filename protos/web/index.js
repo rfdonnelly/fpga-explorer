@@ -50,7 +50,7 @@ function create_layout_table(fields) {
     // Fields values row
     var tr = t.insertRow();
     fields.forEach(function (field) {
-        create_td(tr, create_input("0x0000"), "fieldvalue").colSpan = field.nbits
+        create_td(tr, create_input("0x0"), "fieldvalue").colSpan = field.nbits
     })
 
     // Register value row
