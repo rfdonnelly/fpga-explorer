@@ -8,6 +8,11 @@ th {
     background-color: lightgray;
 }
 
+th:nth-of-type(8n), th:nth-of-type(8n-1), th:nth-of-type(8n-2), th:nth-of-type(8n-3) {
+    background-color: gray;
+}
+
+
 .bitidx {
     width: 3.125%;
     text-align: center;

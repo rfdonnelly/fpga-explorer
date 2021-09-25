@@ -30,9 +30,10 @@ function create_layout_table(fields) {
     var t = document.createElement("table");
 
     // Bit indexes row
-    var tr = t.insertRow();
+    var th = t.createTHead();
+    var tr = th.insertRow();
     for (var i = 0; i < 32; i++) {
-        create_td(tr, 31 - i, "bitidx")
+        create_th(tr, 31 - i, "bitidx")
     }
 
     // Field names row
