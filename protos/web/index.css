@@ -45,4 +45,6 @@ body {
 .rotate {
     writing-mode: vertical-rl;
     transform: rotate(180deg);
+    margin-left: auto;
+    margin-right: auto;
 }
