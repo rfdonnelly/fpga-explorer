@@ -20,6 +20,15 @@ def to_hex(value: Optional[int], nbits: int = 0) -> str:
     else:
         return f"0x{value:x}"
 
+def to_bin(value: Optional[int], nbits: int = 0) -> str:
+    if value is None:
+        return "?" * max(1, nbits)
+
+    if nbits > 0:
+        return f"0b{value:032b}"
+    else:
+        return f"0b{value}:b"
+
 def parse_int(value, base):
     try:
         return int(value, base)
@@ -271,6 +280,14 @@ class RegView(ttk.Frame):
         self.read_button.pack(side=RIGHT, fill=Y)
         self.write_button = ttk.Button(self.buttons, text="w", width=2, command=self.write_callback)
         self.write_button.pack(side=RIGHT, fill=Y)
+        self.sep = ttk.Frame(self.buttons, width=10)
+        self.sep.pack(side=RIGHT, fill=Y)
+        self.to_hex_button = ttk.Button(self.buttons, text="🡒h", width=3, command=self.to_hex_callback)
+        self.to_hex_button.pack(side=RIGHT, fill=Y)
+        self.to_bin_button = ttk.Button(self.buttons, text="🡒b", width=3, command=self.to_bin_callback)
+        self.to_bin_button.pack(side=RIGHT, fill=Y)
+        self.to_dec_button = ttk.Button(self.buttons, text="🡒d", width=3, command=self.to_dec_callback)
+        self.to_dec_button.pack(side=RIGHT, fill=Y)
 
         self.fieldtable = RegFieldTable(self)
         self.fieldtable.pack(side=TOP, fill=X)
@@ -286,6 +303,18 @@ class RegView(ttk.Frame):
         addr = self.reg["address"]
         read_value = connecter.read(addr)
         self.update_value(read_value)
+
+    def to_bin_callback(self):
+        value = parse_int(self.reg_svar.get(), 0)
+        self.reg_svar.set(to_bin(value, 32))
+
+    def to_hex_callback(self):
+        value = parse_int(self.reg_svar.get(), 0)
+        self.reg_svar.set(to_hex(value, 32))
+
+    def to_dec_callback(self):
+        value = parse_int(self.reg_svar.get(), 0)
+        self.reg_svar.set(f"{value}")
 
     def reg_svar_write_callback(self, *args):
         value = parse_int(self.reg_svar.get(), 0)
