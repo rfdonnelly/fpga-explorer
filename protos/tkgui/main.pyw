@@ -5,6 +5,8 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 
+from typing import Optional
+
 import math
 
 def to_hex(value, nbits=0):
@@ -20,6 +22,110 @@ def to_hex(value, nbits=0):
 def reg_to_field(reg_value, field_lsb, field_nbits):
     mask = (1 << field_nbits) - 1
     return (reg_value >> field_lsb) & mask
+
+class ConnectorInterface:
+    """The interface for connecting to a target device.
+
+    Used to implement connectors for various interaces (e.g. UART, JTAG, etc.)
+    """
+
+    def available_ports(self) -> list[str]:
+        """Returns a list of available ports to connect to."""
+        pass
+
+    def connect(self, port: Optional[str]) -> Optional[str]:
+        """Connects to a port.
+
+        If no port is provided, attempt to connect to the first available port.
+        If no ports are available, return an error message.
+
+        On success, returns None.
+        On failure, returns an error message.
+        """
+        pass
+
+    def is_connected(self) -> bool:
+        """Returns the connection status."""
+        pass
+
+    def read(self, addr: int) -> tuple[Optional[int], Optional[str]]:
+        """Reads an address.
+
+        Assumes a 32-bit address and a 32-bit data word.
+
+        On success, returns a tuple containing the data and None.
+        On failure, returns a tuple containing None and an error message.
+        """
+        pass
+
+    def write(self, addr: int, data: int) -> Optional[str]:
+        """Write an address.
+
+        Assumes a 32-bit address and a 32-bit data word.
+
+        On success, returns None.
+        On failure, returns an error message.
+        """
+        pass
+
+class VirtualConnector(ConnectorInterface):
+    """A connecter that allows demoing Register Explorer w/o having to connect to actual hardware.
+    
+    It implements a read/write memory model.  Address locations are initialized on read (if not previously initialized) to a random value."""
+    import random
+
+    def __init__(self):
+        self.memory = {}
+
+    def get(self, addr: int) -> int:
+        if self.memory.get(addr) is None:
+            self.set(addr, random.getrandbits(32))
+
+        return self.memory[addr]
+
+    def set(self, addr: int, data: int) -> None:
+        self.memory[addr] = data
+
+    def available_ports(self) -> list[str]:
+        """Returns a list of available ports to connect to."""
+        return ["Virtual"]
+
+    def connect(self, port: Optional[str]) -> Optional[str]:
+        """Connects to a port.
+
+        If no port is provided, attempt to connect to the first available port.
+        If no ports are available, return an error message.
+
+        On success, returns None.
+        On failure, returns an error message.
+        """
+        return None
+
+    def is_connected(self) -> bool:
+        """Returns the connection status."""
+        return True
+
+    def read(self, addr: int) -> tuple[Optional[int], Optional[str]]:
+        """Reads an address.
+
+        Assumes a 32-bit address and a 32-bit data word.
+
+        On success, returns a tuple containing the data and None.
+        On failure, returns a tuple containing None and an error message.
+        """
+        return self.get(addr)
+
+    def write(self, addr: int, data: int) -> Optional[str]:
+        """Writes an address.
+
+        Assumes a 32-bit address and a 32-bit data word.
+
+        On success, returns None.
+        On failure, returns an error message.
+        """
+        self.set(addr, data)
+
+connecter = VirtualConnector()
 
 class TreeNav(ttk.Treeview):
     def __init__(self, parent):
@@ -196,7 +302,7 @@ class RegLayout(ttk.Frame):
 
         name = reg["name"]
         address = reg["address"]
-        reg_value = reg["value"]
+        reg_value = connecter.read(address)
         fields = reg["fields"]
 
         reg_width = 32
@@ -717,6 +823,11 @@ If all bits low, the design will stop upon any abort/failure condition described
         self.treenav.load_items(self.items)
         self.treenav.see("regs.blk0.reg0")
         self.treenav.selection_set("regs.blk0.reg0")
+
+        for item in self.items.values():
+            if item["type"] == "reg":
+                connecter.set(item["address"], item["value"])
+
         self.regview.load_reg(self.items.get("regs.blk0.reg0"))
 
         # self.regview = ttk.Frame(self.split_h)
