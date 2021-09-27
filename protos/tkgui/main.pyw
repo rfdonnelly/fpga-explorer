@@ -156,7 +156,7 @@ class RegFieldTable(ttk.Frame):
             label.config(background="light gray")
             self.columnconfigure(column, weight=weights[column])
 
-        for field_index, field in enumerate(reversed(fields)):
+        for field_index, field in enumerate(fields):
             lsb = field["lsb"]
             msb = lsb + field["nbits"] - 1
             bits = lsb if msb == lsb else f"{msb}:{lsb}"
