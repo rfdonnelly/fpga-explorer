@@ -265,8 +265,27 @@ class RegView(ttk.Frame):
         self.layout = RegLayout(self, self.reg_svar)
         self.layout.pack(side=TOP, fill=X, pady=(0, 5))
 
+        self.buttons = ttk.Frame(self)
+        self.buttons.pack(side=TOP, fill=X, pady=(0, 5))
+        self.read_button = ttk.Button(self.buttons, text="r", width=2, command=self.read_callback)
+        self.read_button.pack(side=RIGHT, fill=Y)
+        self.write_button = ttk.Button(self.buttons, text="w", width=2, command=self.write_callback)
+        self.write_button.pack(side=RIGHT, fill=Y)
+
         self.fieldtable = RegFieldTable(self)
         self.fieldtable.pack(side=TOP, fill=X)
+
+    def write_callback(self):
+        write_value = parse_int(self.layout.value.get(), 0)
+        addr = self.reg["address"]
+        connecter.write(addr, write_value)
+        read_value = connecter.read(addr)
+        self.update_value(read_value)
+
+    def read_callback(self):
+        addr = self.reg["address"]
+        read_value = connecter.read(addr)
+        self.update_value(read_value)
 
     def reg_svar_write_callback(self, *args):
         value = parse_int(self.reg_svar.get(), 0)
