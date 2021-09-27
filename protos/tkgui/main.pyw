@@ -160,7 +160,7 @@ class RegFieldTable(ttk.Frame):
             lsb = field["lsb"]
             msb = lsb + field["nbits"] - 1
             bits = lsb if msb == lsb else f"{msb}:{lsb}"
-            cells = [bits, field["name"], field["access"], field.get("description") or ""]
+            cells = [bits, field["name"], field["access"], field.get("doc") or ""]
             widths = [5, 25, 7, 50]
             row = field_index + 1
             row_texts = {}
@@ -340,6 +340,7 @@ class GUI:
             "regs": {
                 "type": "block",
                 "offset": 0x0,
+                "size": 0x10000,
                 "children": [
                     "regs.blk0",
                     "regs.blk1",
@@ -395,6 +396,8 @@ class GUI:
             "regs.blk0.reg0": {
                 "type": "reg",
                 "name": "regs.blk0.reg0",
+                "offset": 0x0,
+                "size": 0x4,
                 "address": 0x0,
                 "value": 0x600dc0de,
                 "fields": [
@@ -434,6 +437,8 @@ class GUI:
             "regs.blk0.reg1": {
                 "type": "reg",
                 "name": "regs.blk0.reg1",
+                "offset": 0x4,
+                "size": 0x4,
                 "address": 0x4,
                 "value": 0x0000000,
                 "fields": [
@@ -457,13 +462,15 @@ class GUI:
                         "nbits": 8,
                         "lsb": 0,
                         "access": "rw",
-                        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                        "doc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                     },
                 ],
             },
             "regs.blk1.reg0": {
                 "type": "reg",
                 "name": "regs.blk1.reg0",
+                "offset": 0x0,
+                "size": 0x4,
                 "address": 0x1000,
                 "value": 0x0badf00d,
                 "fields": [
@@ -472,34 +479,48 @@ class GUI:
                         "nbits": 32,
                         "lsb": 0,
                         "access": "rw",
-                        "description": "The address of the operation.",
+                        "doc": "The address of the operation.",
                     },
                 ],
             },
             "regs.blk1.reg1": {
                 "type": "reg",
                 "name": "regs.blk1.reg1",
+                "offset": 0x4,
+                "size": 0x4,
                 "address": 0x1004,
                 "value": 0x00000002,
                 "fields": [
                     {
-                        "name": "rsvd0",
+                        "name": "rsvd1",
                         "nbits": 30,
                         "lsb": 2,
                         "access": "ro",
-                        "description": "Reserved",
+                        "doc": "Reserved",
+                    }, {
+                        "name": "nbytes",
+                        "nbits": 16,
+                        "lsb": 8,
+                        "access": "rw",
+                        "doc": "The number of bytes to transmit."
+                    }, {
+                        "name": "rsvd0",
+                        "nbits": 6,
+                        "lsb": 2,
+                        "access": "ro",
+                        "doc": "Reserved",
                     }, {
                         "name": "done",
                         "nbits": 1,
                         "lsb": 1,
                         "access": "w1c",
-                        "description": "Set by hardware when the operaiton is complete.",
+                        "doc": "Set by hardware when the operation is complete.",
                     }, {
                         "name": "start",
                         "nbits": 1,
                         "lsb": 0,
                         "access": "w1s",
-                        "description": "Starts the operation. Cleared by hardware when the operation has started.",
+                        "doc": "Starts the operation. Cleared by hardware when the operation has started.",
                     },
                 ],
             },
