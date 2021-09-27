@@ -244,7 +244,7 @@ class RegLayout(ttk.Frame):
         rotate = len_name > 2*field["nbits"]
 
         if (rotate):
-            return len_name * 7
+            return len_name * 10
         else:
             return 15
 
@@ -268,7 +268,8 @@ class FieldName(ttk.Frame):
         self.canvas.grid(column=0, row=0, sticky=(W, E))
         self.columnconfigure(0, weight=1)
         self.canvas.bind("<Configure>", self.on_resize)
-        self.text = self.canvas.create_text(self.canvas.winfo_width()/2, 10, text=name, anchor="center", angle=angle)
+        font = ("Courier New", 10, "")
+        self.text = self.canvas.create_text(self.canvas.winfo_width()/2, 10, text=name, anchor="center", angle=angle, font=font)
 
     def on_resize(self, event):
         self.canvas.coords(self.text, event.width/2, event.height/2)
