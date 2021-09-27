@@ -170,6 +170,8 @@ class RegFieldTable(ttk.Frame):
                 text.insert("1.0", cell)
                 row_texts[headings[column]] = text
                 text["state"] = "disabled"
+                if headings[column] == "Description":
+                    text.configure(font=("TkDefaultFont", 10, ""))
             self.table_texts.append(row_texts)
 
 
