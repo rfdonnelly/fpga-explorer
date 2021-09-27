@@ -520,6 +520,8 @@ class GUI:
         ico_path = pathlib.Path(__file__).parent.resolve().joinpath("chip.ico")
         try:
             self.root.iconbitmap(ico_path)
+            # IDLE uses this but it looks blurry compared to iconbitmap()
+            # self.root.wm_iconbitmap(default=ico_path)
         except:
             print(f"warning: resource not found at path '{ico_path}'")
             pass
@@ -598,5 +600,34 @@ class GUI:
 
     def run(self):
         self.root.mainloop()
+
+# Obey Windows DPI settings
+#
+# This doesn't work very well.  The Treeview rendering and field name rotation don't handle well.
+
+# Source: https://github.com/python/cpython/blob/8492b729ae97737d22544f2102559b2b8dd03a03/Lib/idlelib/pyshell.py#L14-L22
+#
+# Valid arguments for the ...Awareness call below are defined in the following.
+# https://msdn.microsoft.com/en-us/library/windows/desktop/dn280512(v=vs.85).aspx
+# import sys
+# if sys.platform == 'win32':
+#     try:
+#         import ctypes
+#         PROCESS_SYSTEM_DPI_AWARE = 1  # Int required.
+#         ctypes.OleDLL('shcore').SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE)
+#     except (ImportError, AttributeError, OSError):
+#         pass
+
+# Fix Windows taskbar icon
+#
+# Source: https://stackoverflow.com/a/1552105
+import sys
+if sys.platform == 'win32':
+    try:
+        import ctypes
+        myappid = u'register-explorer' # arbitrary string
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    except (ImportError, AttributeError, OSError):
+        pass
 
 GUI().run()
