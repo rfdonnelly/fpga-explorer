@@ -9,19 +9,36 @@ from typing import Optional
 
 import math
 
-def to_hex(value, nbits=0):
-    if value is None:
-        return None
-    else:
-        if nbits > 0:
-            digits = math.ceil(nbits/4)
-            return f"0x{value:0{digits}x}"
-        else:
-            return f"0x{value:x}"
+def to_hex(value: Optional[int], nbits: int = 0) -> str:
+    digits = math.ceil(nbits/4)
 
-def reg_to_field(reg_value, field_lsb, field_nbits):
+    if value is None:
+        return "?" * max(1, digits)
+
+    if nbits > 0:
+        return f"0x{value:0{digits}x}"
+    else:
+        return f"0x{value:x}"
+
+def parse_int(value, base):
+    try:
+        return int(value, base)
+    except:
+        return None
+
+def reg_to_field(reg_value: Optional[int], field_lsb: int, field_nbits: int) -> Optional[int]:
+    if reg_value is None:
+        return None
+
     mask = (1 << field_nbits) - 1
     return (reg_value >> field_lsb) & mask
+
+def field_to_reg(field_value: Optional[int], field_lsb: int, field_nbits: int) -> Optional[int]:
+    if field_value is None:
+        return None
+
+    field_mask = (1 << field_nbits) - 1
+    return (field_value & field_mask) << field_lsb
 
 class ConnectorInterface:
     """The interface for connecting to a target device.
@@ -226,17 +243,41 @@ class Menubar(Menu):
     def exit(self, event):
         self.root.destroy()
 
+class StringVarEx(StringVar):
+    """Adds a write callback and provides a silent set function that bypasses the callback."""
+    def __init__(self, parent, text, name, callback):
+        super().__init__(parent, text, name)
+
+        self.callback = callback
+        self.trace_id = self.trace_add("write", self.callback)
+
+    def silent_set(self, s):
+        self.trace_vdelete("w", self.trace_id)
+        self.set(s)
+        self.trace_id = self.trace_add("write", self.callback)
+
 class RegView(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
 
-        self.layout = RegLayout(self)
+        self.reg_svar = StringVarEx(self, "????????", "reg_svar", self.reg_svar_write_callback)
+
+        self.layout = RegLayout(self, self.reg_svar)
         self.layout.pack(side=TOP, fill=X, pady=(0, 5))
 
         self.fieldtable = RegFieldTable(self)
         self.fieldtable.pack(side=TOP, fill=X)
 
+    def reg_svar_write_callback(self, *args):
+        value = parse_int(self.reg_svar.get(), 0)
+        self.layout.update_value(self.reg, value)
+
+    def update_value(self, value):
+        self.reg_svar.set(to_hex(value, 32))
+        self.layout.update_value(self.reg, value)
+
     def load_reg(self, reg):
+        self.reg = reg
         self.layout.load_reg(reg)
         self.fieldtable.load_fields(reg["fields"])
 
@@ -290,15 +331,20 @@ class RegFieldTable(ttk.Frame):
                 text["height"] = lines
 
 class RegLayout(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, reg_svar):
         super().__init__(parent)
+        self.reg_svar = reg_svar
+        self.init()
 
-    def unload_reg(self):
+    def init(self):
         for widget in self.grid_slaves():
             widget.destroy()
 
+        self.field_svars = {}
+        self.field_entries = {}
+
     def load_reg(self, reg):
-        self.unload_reg()
+        self.init()
 
         name = reg["name"]
         address = reg["address"]
@@ -321,26 +367,47 @@ class RegLayout(ttk.Frame):
             self.columnconfigure(column, weight=1)
 
         field_height = self.get_max_field_height(fields)
+
         for index, field in enumerate(fields):
+            field_name = field["name"]
+
             column = reg_width - (field["lsb"] + field["nbits"])
             columnspan = field["nbits"]
-            # label = ttk.Label(self, text=field["name"], borderwidth=1, relief="solid", anchor="center")
-            # label.grid(column=column, columnspan=columnspan, row=2, sticky=(W, E))
-            # FIXME: Experiment to create a Canvas based label to enable text rotation
-            label = FieldName(self, name=field["name"], nbits=field["nbits"], height=field_height)
+            label = FieldName(self, name=field_name, nbits=field["nbits"], height=field_height)
             label.grid(column=column, columnspan=columnspan, row=2, sticky=(W, E))
-            field_value = reg_to_field(reg_value, field["lsb"], field["nbits"])
-            field_value = to_hex(field_value, field["nbits"])
-            label = Entry(self, justify="center")
-            label.insert("0", field_value)
+            field_svar = StringVarEx(self, "?", field_name, lambda *_, reg=reg, field_name=field_name: self.field_svar_write_callback(reg, field_name))
+            self.field_svars[field_name] = field_svar
+            label = Entry(self, justify="center", textvariable=field_svar)
             label.grid(column=column, columnspan=columnspan, row=3, sticky=(W, E))
+            self.field_entries[field_name] = label
 
         for row in range(5):
             self.rowconfigure(row, weight=1)
 
-        label = Entry(self, justify="center")
-        label.insert("0", to_hex(reg_value, 32))
-        label.grid(column=0, columnspan=32, row=4, sticky=(W, E))
+        self.value = Entry(self, justify="center", textvariable=self.reg_svar)
+        self.reg_svar.set("????????")
+        self.value.grid(column=0, columnspan=32, row=4, sticky=(W, E))
+
+    def update_value(self, reg, value):
+        fields = reg["fields"]
+        for field in fields:
+            field_name = field["name"]
+            field_value = reg_to_field(value, field["lsb"], field["nbits"])
+            self.field_svars[field_name].silent_set(to_hex(field_value, field["nbits"]))
+
+    def field_svar_write_callback(self, reg, field_name):
+        field_entry = self.field_entries.get(field_name)
+        if field_entry is not None:
+            field_entry["background"] = "light yellow"
+            self.value["background"] = "light yellow"
+
+        value = 0
+        for field in reg["fields"]:
+            field_name = field["name"]
+            field_value = parse_int(self.field_svars[field_name].get(), 0)
+            value |= field_to_reg(field_value, field["lsb"], field["nbits"])
+
+        self.reg_svar.silent_set(to_hex(value, 32))
 
     def get_max_field_height(self, fields):
         return max([self.get_field_height(field) for field in fields])
