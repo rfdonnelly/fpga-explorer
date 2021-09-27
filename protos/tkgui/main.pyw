@@ -343,6 +343,7 @@ class GUI:
                 "offset": 0x0,
                 "size": 0x10000,
                 "children": [
+                    "regs.nand0",
                     "regs.blk0",
                     "regs.blk1",
                     "regs.blk2",
@@ -355,6 +356,16 @@ class GUI:
                 "children": [
                     "mems.tx",
                     "mems.rx",
+                ],
+            },
+            "regs.nand0": {
+                "type": "block",
+                "offset": 0x0,
+                "size": 0x1000,
+                "children": [
+                    "regs.nand0.rev",
+                    "regs.nand0.id",
+                    "regs.nand0.cmd",
                 ],
             },
             "regs.blk0": {
@@ -393,6 +404,179 @@ class GUI:
                 "type": "mem",
                 "offset": 0x0000,
                 "size": 0x10000,
+            },
+            "regs.nand0.rev": {
+                "type": "reg",
+                "name": "regs.nand0.rev",
+                "offset": 0x0,
+                "size": 0x4,
+                "address": 0x0,
+                "value": 0x600dc0de,
+                "fields": [
+                    {
+                        "name": "rsvd0",
+                        "nbits": 8,
+                        "lsb": 24,
+                        "access": "ro",
+                        "doc": "Reserved."
+                    }, {
+                        "name": "major",
+                        "nbits": 8,
+                        "lsb": 16,
+                        "access": "ro",
+                        "doc": "Major component of the version number. A change to the major component communicates a breaking change.",
+                    }, {
+                        "name": "minor",
+                        "nbits": 8,
+                        "lsb": 8,
+                        "access": "ro",
+                        "doc": "Minor component of the version number. A change to the minor component communicates a non-breaking change that adds functionality.",
+                    }, {
+                        "name": "patch",
+                        "nbits": 8,
+                        "lsb": 0,
+                        "access": "ro",
+                        "doc": "Patch component of the version number. A change to the patch component communicates a bug fix.",
+                    }
+                ],
+            },
+            "regs.nand0.id": {
+                "type": "reg",
+                "name": "regs.nand0.id",
+                "offset": 0x4,
+                "size": 0x4,
+                "address": 0x4,
+                "value": 0x600dc0de,
+                "fields": [
+                    {
+                        "name": "rsvd0",
+                        "nbits": 28,
+                        "lsb": 4,
+                        "access": "ro",
+                        "doc": "Reserved."
+                    }, {
+                        "name": "bankid",
+                        "nbits": 4,
+                        "lsb": 0,
+                        "access": "ro",
+                        "doc": """The lowest 4 bits of the bank_id input port.
+* 0xA -- NAND sequencer 0
+* 0xB -- NAND sequencer 1""",
+                    }
+                ],
+            },
+            "regs.nand0.cmd": {
+                "type": "reg",
+                "name": "regs.nand0.cmd",
+                "offset": 0x8,
+                "size": 0x4,
+                "address": 0x8,
+                "value": 0x600dc0de,
+                "fields": [
+                    {
+                        "name": "cmd",
+                        "nbits": 8,
+                        "lsb": 24,
+                        "access": "rw",
+                        "doc": """On write:
+
+* 0x40 -- Issue a NOP command
+* 0xFF -- Issue a RESET command
+* 0x90 -- Issue a READ_ID command
+* 0xE1 -- Issue a READ_ID_ANY
+* 0x43 -- Issue a SET_TIMING_MODE
+* 0x44 -- Issue a GET_TIMING_MODE
+* 0x41 -- Issue a SET_TIMING_MODE_SGL_LUN
+* 0x42 -- Issue a GET_TIMING_MODE_EUR
+* 0x70 -- Issue a READ_STAT (read status)
+* 0x48 -- Issue a ENA_ECC
+* 0x55 -- Issue a DIS_ECC
+* 0x50 -- Issue a START_DATA_CHECK
+* 0x52 -- Issue a STOP_DATA_CHECK
+* 0x53 -- Issue a CHECK_DDR_DATA
+* 0x97 -- Issue a SET_EXT_WP (set external/global write protect)
+* 0x98 -- Issue a CLR_EXT_WP (clears external/global write protect)
+* 0x99 -- Issue a SET_INT_WP (sets internal per-LUN write protect)
+* 0x9A -- Issue a CLR_INT_WP (clears internal per-LUN write protect)
+* 0x9B -- Issue a CLR_LUN_ERR (clears all error bits for selected LUN)
+* 0x9D -- Issue a CLR_ECC_ERR (clears ECC error counters in register NANDERRCNT)
+* 0x9E -- Issue a CLR_RESP (clears NANDRESP0/1 registers)
+* 0x49 -- Issue a ENA_TMO (re-enables timeout)
+* 0x56 -- Issue a DIS_TMO (disables timeout)
+* 0xBA -- Issue a BATCH_CMD = starts a batch command session (stored in SDRAM/DDR)
+* 0x46 -- Issue a SET_CFG_SPARE_PGSZ (sets the page spare size if default not acceptable)
+* 0x47 -- Issue a GET_CFG (reads Eureka configuration register for spare page size and other settings)
+* 0x33 -- Issue a READ_CUSTOM_EUR (reads Eureka controller register)
+* 0x36 -- Issue a WRITE_CUSTOM_EUR (writes to Eureka controller register)
+
+On read: last command.
+
+IMPORTANT NOTE: Before writing a new command to this register, VCESW must first ensure that the NAND sequencer is ready to accept new commands (by polling register NANDGLBSTAT until bit nand_seq_rdy high)""",
+                    }, {
+                        "name": "arg",
+                        "nbits": 8,
+                        "lsb": 16,
+                        "access": "rw",
+                        "doc": "Command argument for direct commands.",
+                    }, {
+                        "name": "lunid",
+                        "nbits": 4,
+                        "lsb": 12,
+                        "access": "rw",
+                        "doc": """The target LUN ID for the command.
+
+* 0x0 - 0x7 -- Select single specified LUN (8 LUNs per NAND sequencer)
+* 0xF -- Broadcast to all 8 LUNs
+* 0x8 - 0xE -- Equivalent to 0x0 - 0x7 respectively.""",
+                    }, {
+                        "name": "ignore_descr_cs",
+                        "nbits": 1,
+                        "lsb": 11,
+                        "access": "rw",
+                        "doc": "Ignore descriptor checksum violation(s) and proceed with batch command(s) regardless. Nominally low.",
+                    }, {
+                        "name": "rsvd0",
+                        "nbits": 2,
+                        "lsb": 9,
+                        "access": "ro",
+                        "doc": "Reserved.",
+                    }, {
+                        "name": "done_irq_mode",
+                        "nbits": 1,
+                        "lsb": 8,
+                        "access": "rw",
+                        "doc": """Select the mode for the DONE_IRQ:
+
+* 0 -- DONE_IRQ will fine upon command completion for any command (batch and direct commands)
+* 1 -- DONE_IRQ will only fire upon batch command completion""",
+                    }, {
+                        "name": "tmo_sel",
+                        "nbits": 2,
+                        "lsb": 6,
+                        "access": "rw",
+                        "doc": """Select the timeout value.
+
+* 0x0 -- Timeout after 4ms (exactly 3.93ms)
+* 0x1 -- Timeout after 8ms (exactly 7.86ms)
+* 0x2 -- Timeout after 32ms (exactly 31.46ms)
+* 0x3 -- Timeout after 4ms (exactly 3.93ms)""",
+                    }, {
+                        "name": "continue_on_abort_fail",
+                        "nbits": 6,
+                        "lsb": 0,
+                        "access": "rw",
+                        "doc": """Set high individual bits if you want the design to continue to the next command in the batch upon encountering abort or other failure condition. Design will not execute the command resulting in the abort/failure condition but will resume normal execution by skipping to the next command in the batch. Each bit controls continue/terminate for 1 condition.
+
+* Bit 5 -- Continue on page-erased-verify failure (some page data non-FFs)
+* Bit 4 -- Continue on DBE on READ command
+* Bit 3 -- Continue on program/erase failure (e.g. on access to a bad block)
+* Bit 2 -- Continue on write protect violation (abort_id 0xB)
+* Bit 1 -- Continue on timeout (fail_id 0x1)
+* Bit 0 -- Continue on bad descriptor (abort_ids 0x3-0xA)
+
+If all bits low, the design will stop upon any abort/failure condition described above and will not execute any of the following commands scheduled in the batch. Regardless of bits set in this field, the design will never continue upon abort conditions 0x1, 0x2 (illegal command in NANDCMDR.nand_cmd or 0 in NANDNCMDS.nand_ncmds).""",
+                    }
+                ],
             },
             "regs.blk0.reg0": {
                 "type": "reg",
