@@ -31,7 +31,7 @@ function create_div(text) {
     return div
 }
 
-function create_layout_table(fields) {
+function create_layout_table(parent, fields) {
     let t = document.createElement("table");
     t.className = "layout"
 
@@ -71,7 +71,7 @@ function create_layout_table(fields) {
     tr = t.insertRow();
     create_td(tr, create_input("0x00000000"), "regvalue").colSpan = 32
 
-    document.body.appendChild(t);
+    parent.appendChild(t);
 }
 
 function create_li(parent, text) {
@@ -80,7 +80,7 @@ function create_li(parent, text) {
     parent.appendChild(li)
 }
 
-function create_field_table(fields) {
+function create_field_table(parent, fields) {
     let t = document.createElement("table");
     t.className = "fields"
 
@@ -115,7 +115,7 @@ function create_field_table(fields) {
         create_td(tr, field.doc.replace(/(?:\r\n|\r|\n)/g, '<br>'))
     })
 
-    document.body.appendChild(t)
+    parent.appendChild(t)
 }
 
 fields = [
@@ -238,6 +238,5 @@ If all bits low, the design will stop upon any abort/failure condition described
     }
 ]
 
-create_layout_table(fields)
-document.body.appendChild(document.createElement("hr"))
-create_field_table(fields)
+create_layout_table(document.getElementById("layout"), fields)
+create_field_table(document.getElementById("fields"), fields)
