@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import math
+import random
+
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
@@ -7,7 +10,6 @@ from tkinter import messagebox
 
 from typing import Optional
 
-import math
 
 def to_hex(value: Optional[int], nbits: int = 0) -> str:
     digits = math.ceil(nbits/4)
@@ -96,9 +98,9 @@ class ConnectorInterface:
 
 class VirtualConnector(ConnectorInterface):
     """A connecter that allows demoing Register Explorer w/o having to connect to actual hardware.
-    
-    It implements a read/write memory model.  Address locations are initialized on read (if not previously initialized) to a random value."""
-    import random
+
+    It implements a read/write memory model.  Address locations are initialized on read (if not previously initialized) to a random value.
+    """
 
     def __init__(self):
         self.memory = {}
