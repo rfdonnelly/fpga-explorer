@@ -105,7 +105,14 @@ function create_field_table(parent, fields) {
         create_td(tr, nbits, "fields_nbits")
         create_td(tr, field.name, "fields_name")
         create_td(tr, field.access, "fields_access")
-        create_td(tr, field.doc.replace(/(?:\r\n|\r|\n)/g, '<br>'), "fields_description")
+        let doc = function() {
+            if (field.doc) {
+                return field.doc.replace(/(?:\r\n|\r|\n)/g, '<br>')
+            } else {
+                ""
+            }
+        }()
+        create_td(tr, doc, "fields_description")
     })
 
     parent.appendChild(t)
