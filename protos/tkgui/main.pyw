@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 
+CEF = True
+
+if CEF:
+    from cefpython3 import cefpython as cef
+
 import math
+
+from pathlib import Path
+import platform
 import random
 
 from tkinter import *
@@ -10,6 +18,10 @@ from tkinter import messagebox
 
 from typing import Optional
 
+# Platforms
+WINDOWS = (platform.system() == "Windows")
+LINUX = (platform.system() == "Linux")
+MAC = (platform.system() == "Darwin")
 
 def to_hex(value: Optional[int], nbits: int = 0) -> str:
     digits = math.ceil(nbits/4)
@@ -497,6 +509,85 @@ class FieldName(ttk.Frame):
     def on_resize(self, event):
         self.canvas.coords(self.text, event.width/2, event.height/2)
 
+class CEFRegView(ttk.Frame):
+    def __init__(self, parent):
+        self.browser = None
+
+        super().__init__(parent)
+
+        settings = {}
+        if MAC:
+            settings["external_message_pump"] = True
+        cef.Initialize(settings=settings)
+
+        self.bind("<Configure>", self.on_configure)
+
+    def embed_browser(self):
+        window_info = cef.WindowInfo()
+        rect = [0, 0, self.winfo_width(), self.winfo_height()]
+        window_info.SetAsChild(self.get_window_handle(), rect)
+
+        file_path = Path(__file__).parent.parent.joinpath("web/index.html").absolute()
+        file_uri = f"file://{file_path}"
+        self.browser = cef.CreateBrowserSync(window_info, url=file_uri)
+        assert self.browser
+
+        self.message_loop_work()
+
+    def get_window_handle(self):
+        if MAC:
+            # Do not use self.winfo_id() on Mac, because of these issues:
+            # 1. Window id sometimes has an invalid negative value (Issue #308).
+            # 2. Even with valid window id it crashes during the call to NSView.setAutoresizingMask:
+            #    https://github.com/cztomczak/cefpython/issues/309#issuecomment-661094466
+            #
+            # To fix it using PyObjC package to obtain window handle. If you change structure of windows then you
+            # need to do modifications here as well.
+            #
+            # There is still one issue with this solution. Sometimes there is more than one window, for example when application
+            # didn't close cleanly last time Python displays an NSAlert window asking whether to Reopen that window. In such
+            # case app will crash and you will see in console:
+            # > Fatal Python error: PyEval_RestoreThread: NULL tstate
+            # > zsh: abort      python tkinter_.py
+            # Error messages related to this: https://github.com/cztomczak/cefpython/issues/441
+            #
+            # There is yet another issue that might be related as well:
+            # https://github.com/cztomczak/cefpython/issues/583
+
+            # noinspection PyUnresolvedReferences
+            from AppKit import NSApp
+            # noinspection PyUnresolvedReferences
+            import objc
+            logger.info("winfo_id={}".format(self.winfo_id()))
+            # noinspection PyUnresolvedReferences
+            content_view = objc.pyobjc_id(NSApp.windows()[-1].contentView())
+            logger.info("content_view={}".format(content_view))
+            return content_view
+        elif self.winfo_id() > 0:
+            return self.winfo_id()
+        else:
+            raise Exception("Couldn't obtain window handle")
+
+    def message_loop_work(self):
+        cef.MessageLoopWork()
+        self.after(10, self.message_loop_work)
+
+    def on_configure(self, event):
+        if not self.browser:
+            self.embed_browser()
+
+        if WINDOWS:
+            ctypes.windll.user32.SetWindowPos(
+                self.browser.GetWindowHandle(), 0,
+                0, 0, event.width, event.height, 0x0002)
+        elif LINUX:
+            self.browser.SetBounds(0, 0, event.width, event.height)
+
+        self.browser.NotifyMoveOrResizeStarted()    
+
+    def load_reg(self, reg):
+        pass
+
 class GUI:
     def __init__(self):
         self.docked = 1
@@ -934,7 +1025,10 @@ If all bits low, the design will stop upon any abort/failure condition described
             },
         }
 
-        self.regview = RegView(self.right)
+        if CEF:
+            self.regview = CEFRegView(self.right)
+        else:
+            self.regview = RegView(self.right)
         self.regview.pack(fill=BOTH, expand=TRUE, padx=(0, 5))
 
         self.treenav.load_items(self.items)
@@ -1034,6 +1128,8 @@ If all bits low, the design will stop upon any abort/failure condition described
 
     def run(self):
         self.root.mainloop()
+        if CEF:
+            cef.Shutdown()
 
 # Obey Windows DPI settings
 #
