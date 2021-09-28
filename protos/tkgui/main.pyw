@@ -586,7 +586,11 @@ class CEFRegView(ttk.Frame):
         self.browser.NotifyMoveOrResizeStarted()    
 
     def load_reg(self, reg):
-        pass
+        # FIXME: We don't create the browser until first resize event, and we
+        # attempt to load_reg before the first resize (before the browser has
+        # been created). So fix by making this conditional for now.
+        if self.browser:
+            self.browser.ExecuteFunction("load_reg", reg)
 
 class GUI:
     def __init__(self):

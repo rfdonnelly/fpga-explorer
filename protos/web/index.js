@@ -111,6 +111,22 @@ function create_field_table(parent, fields) {
     parent.appendChild(t)
 }
 
+function load_reg(reg) {
+    var reg = reg
+
+    let layout = document.getElementById("layout")
+    while (layout.firstChild) {
+        layout.removeChild(layout.firstChild)
+    }
+    create_layout_table(layout, reg.fields)
+
+    let fields = document.getElementById("fields")
+    while (fields.firstChild) {
+        fields.removeChild(fields.firstChild)
+    }
+    create_field_table(fields, reg.fields)
+}
+
 fields = [
     {
         "name": "f1",
