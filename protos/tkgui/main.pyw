@@ -532,6 +532,11 @@ class CEFRegView(ttk.Frame):
         self.browser = cef.CreateBrowserSync(window_info, url=file_uri)
         assert self.browser
 
+        bindings = cef.JavascriptBindings()
+        bindings.SetFunction("py_read", self.py_read)
+        bindings.SetFunction("py_write", self.py_write)
+        self.browser.SetJavascriptBindings(bindings)
+
         self.message_loop_work()
 
     def get_window_handle(self):
@@ -591,6 +596,13 @@ class CEFRegView(ttk.Frame):
         # been created). So fix by making this conditional for now.
         if self.browser:
             self.browser.ExecuteFunction("load_reg", reg)
+
+    def py_read(self, addr, callback):
+        data = connecter.read(addr)
+        callback.Call(data)
+
+    def py_write(self, addr, data):
+        connecter.write(addr, parse_int(data, 0))
 
 class GUI:
     def __init__(self):

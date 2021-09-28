@@ -18,9 +18,11 @@ function create_th(parent, text) {
     return th
 }
 
-function create_input(value) {
+function create_input(id, className, value) {
     let input = document.createElement("input");
     input.type = "text"
+    input.id = id
+    input.className = className
     input.value = value
     return input
 }
@@ -64,12 +66,18 @@ function create_layout_table(parent, fields) {
                 return "0x0"
             }
         }()
-        create_td(tr, create_input(text), "fieldvalue").colSpan = field.nbits
+        let id = "field_" + field.name + "_input"
+        let className = "field_input"
+        let input = create_input(id, className, text)
+        create_td(tr, input, "fieldvalue").colSpan = field.nbits
     })
 
     // Register value row
     tr = t.insertRow();
-    create_td(tr, create_input("0x00000000"), "regvalue").colSpan = 32
+    let id = "reg_input"
+    let className = "reg_input"
+    let input = create_input(id, className, "0x00000000")
+    create_td(tr, input, "regvalue").colSpan = 32
 
     parent.appendChild(t);
 }
@@ -132,6 +140,27 @@ function load_reg(reg) {
         fields.removeChild(fields.firstChild)
     }
     create_field_table(fields, reg.fields)
+}
+
+function reg_read() {
+    console.log("reg_read")
+    let input = document.getElementById("reg_input")
+    let addr = 0x0
+    py_read(addr, update_reg_value)
+}
+
+function reg_write() {
+    console.log("reg_write")
+    let input = document.getElementById("reg_input")
+    let addr = 0x0
+    let data = input.value
+    py_write(addr, data)
+    py_read(addr, update_reg_value)
+}
+
+function update_reg_value(value) {
+    let input = document.getElementById("reg_input")
+    input.value = value
 }
 
 fields = [
