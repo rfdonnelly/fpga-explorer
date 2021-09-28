@@ -901,8 +901,8 @@ If all bits low, the design will stop upon any abort/failure condition described
                 "fields": [
                     {
                         "name": "rsvd1",
-                        "nbits": 30,
-                        "lsb": 2,
+                        "nbits": 8,
+                        "lsb": 24,
                         "access": "ro",
                         "doc": "Reserved",
                     }, {
