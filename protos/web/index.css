@@ -31,6 +31,19 @@ th:nth-of-type(8n), th:nth-of-type(8n-1), th:nth-of-type(8n-2), th:nth-of-type(8
     vertical-align: middle;
 }
 
+.fields_nbits {
+    width: 10%;
+}
+.fields_name {
+    width: 20%;
+}
+.fields_access {
+    width: 10%;
+}
+.fields_description {
+    width: 60%;
+}
+
 table {
     width: 100%;
 }

@@ -84,18 +84,12 @@ function create_field_table(parent, fields) {
     let t = document.createElement("table");
     t.className = "fields"
 
-    column_names = [
-        "Bits",
-        "Name",
-        "Access",
-        "Description",
-    ]
-
     let th = t.createTHead()
     let tr = th.insertRow()
-    column_names.forEach(function (column_name) {
-        create_th(tr, column_name)
-    })
+    create_th(tr, "Bits", "fields_nbits")
+    create_th(tr, "Name", "fields_name")
+    create_th(tr, "Access", "fields_access")
+    create_th(tr, "Description", "fields_description")
 
     let tb = t.createTBody()
     fields.forEach(function (field) {
@@ -108,11 +102,10 @@ function create_field_table(parent, fields) {
                 return `${msb}:${field.lsb}`
             }
         }()
-        create_td(tr, nbits)
-        create_td(tr, field.name)
-        create_td(tr, field.access)
-
-        create_td(tr, field.doc.replace(/(?:\r\n|\r|\n)/g, '<br>'))
+        create_td(tr, nbits, "fields_nbits")
+        create_td(tr, field.name, "fields_name")
+        create_td(tr, field.access, "fields_access")
+        create_td(tr, field.doc.replace(/(?:\r\n|\r|\n)/g, '<br>'), "fields_description")
     })
 
     parent.appendChild(t)
