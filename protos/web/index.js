@@ -1,6 +1,5 @@
 function create_td(parent, child, className = "") {
-    var td = parent.insertCell()
-    console.log(typeof(child))
+    let td = parent.insertCell()
     if (typeof(child) == "object") {
         td.appendChild(child)
     } else {
@@ -13,42 +12,42 @@ function create_td(parent, child, className = "") {
 }
 
 function create_th(parent, text) {
-    var th = document.createElement("th")
+    let th = document.createElement("th")
     th.appendChild(document.createTextNode(text))
     parent.appendChild(th)
     return th
 }
 
 function create_input(value) {
-    var input = document.createElement("input");
+    let input = document.createElement("input");
     input.type = "text"
     input.value = value
     return input
 }
 
 function create_div(text) {
-    var div = document.createElement("div")
+    let div = document.createElement("div")
     div.appendChild(document.createTextNode(text))
     return div
 }
 
 function create_layout_table(fields) {
-    var t = document.createElement("table");
+    let t = document.createElement("table");
     t.className = "layout"
 
     // Bit indexes row
-    var th = t.createTHead();
-    var tr = th.insertRow();
-    for (var i = 0; i < 32; i++) {
+    let th = t.createTHead();
+    let tr = th.insertRow();
+    for (let i = 0; i < 32; i++) {
         create_th(tr, 31 - i, "bitidx")
     }
 
     // Field names row
-    var tr = t.insertRow();
+    tr = t.insertRow();
     fields.forEach(function (field) {
-        var div = create_div(field.name)
+        let div = create_div(field.name)
 
-        var td = create_td(tr, div, "fieldname")
+        let td = create_td(tr, div, "fieldname")
         td.colSpan = field.nbits
         if (field.name.length > 4 * field.nbits) {
             div.classList.add("rotate")
@@ -56,7 +55,7 @@ function create_layout_table(fields) {
    })
 
     // Fields values row
-    var tr = t.insertRow();
+    tr = t.insertRow();
     fields.forEach(function (field) {
         text = function () {
             if (field.nbits == 1) {
@@ -69,20 +68,20 @@ function create_layout_table(fields) {
     })
 
     // Register value row
-    var tr = t.insertRow();
+    tr = t.insertRow();
     create_td(tr, create_input("0x00000000"), "regvalue").colSpan = 32
 
     document.body.appendChild(t);
 }
 
 function create_li(parent, text) {
-    var li = document.createElement("li")
+    let li = document.createElement("li")
     li.appendChild(document.createTextNode(text))
     parent.appendChild(li)
 }
 
 function create_field_table(fields) {
-    var t = document.createElement("table");
+    let t = document.createElement("table");
     t.className = "fields"
 
     column_names = [
@@ -92,20 +91,20 @@ function create_field_table(fields) {
         "Description",
     ]
 
-    var th = t.createTHead()
-    var tr = th.insertRow()
+    let th = t.createTHead()
+    let tr = th.insertRow()
     column_names.forEach(function (column_name) {
         create_th(tr, column_name)
     })
 
-    var tb = t.createTBody()
+    let tb = t.createTBody()
     fields.forEach(function (field) {
-        var tr = tb.insertRow()
-        var nbits = function() {
+        let tr = tb.insertRow()
+        let nbits = function() {
             if (field.nbits == 1) {
                 return field.lsb
             } else {
-                var msb = field.lsb + field.nbits - 1
+                let msb = field.lsb + field.nbits - 1
                 return `${msb}:${field.lsb}`
             }
         }()
