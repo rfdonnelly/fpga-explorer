@@ -4,6 +4,10 @@ td, th {
     vertical-align: top;
 }
 
+table.layout {
+    table-layout: fixed;
+}
+
 table.layout tr th {
     text-align: center;
 }
@@ -45,6 +49,4 @@ body {
 .rotate {
     writing-mode: vertical-rl;
     transform: rotate(180deg);
-    margin-left: auto;
-    margin-right: auto;
 }

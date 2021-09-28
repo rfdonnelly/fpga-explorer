@@ -25,10 +25,10 @@ function create_input(value) {
     return input
 }
 
-function create_div(text) {
-    let div = document.createElement("div")
-    div.appendChild(document.createTextNode(text))
-    return div
+function create_span(text) {
+    let span = document.createElement("span")
+    span.appendChild(document.createTextNode(text))
+    return span
 }
 
 function create_layout_table(parent, fields) {
@@ -45,12 +45,12 @@ function create_layout_table(parent, fields) {
     // Field names row
     tr = t.insertRow();
     fields.forEach(function (field) {
-        let div = create_div(field.name)
+        let span = create_span(field.name)
 
-        let td = create_td(tr, div, "fieldname")
+        let td = create_td(tr, span, "fieldname")
         td.colSpan = field.nbits
         if (field.name.length > 4 * field.nbits) {
-            div.classList.add("rotate")
+            span.classList.add("rotate")
         }
    })
 
