@@ -39,7 +39,7 @@ function create_layout_table(parent, fields) {
     let th = t.createTHead();
     let tr = th.insertRow();
     for (let i = 0; i < 32; i++) {
-        create_th(tr, 31 - i, "bitidx")
+        create_th(tr, 31 - i, "layout_bit_index")
     }
 
     // Field names row
@@ -47,7 +47,7 @@ function create_layout_table(parent, fields) {
     fields.forEach(function (field) {
         let span = create_span(field.name)
 
-        let td = create_td(tr, span, "fieldname")
+        let td = create_td(tr, span, "layout_field_name")
         td.colSpan = field.nbits
         if (field.name.length > 4 * field.nbits) {
             span.classList.add("rotate")

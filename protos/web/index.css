@@ -20,13 +20,12 @@ th:nth-of-type(8n), th:nth-of-type(8n-1), th:nth-of-type(8n-2), th:nth-of-type(8
     background-color: gray;
 }
 
-
-.bitidx {
+.layout_bit_index {
     width: 3.125%;
     text-align: center;
 }
 
-.fieldname {
+.layout_field_name {
     text-align: center;
     vertical-align: middle;
 }
