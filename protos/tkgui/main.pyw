@@ -510,10 +510,10 @@ class FieldName(ttk.Frame):
         self.canvas.coords(self.text, event.width/2, event.height/2)
 
 class CEFRegView(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, *args, **kwargs):
         self.browser = None
 
-        super().__init__(parent)
+        super().__init__(parent, *args, **kwargs)
 
         settings = {}
         if MAC:
@@ -1042,7 +1042,7 @@ If all bits low, the design will stop upon any abort/failure condition described
         }
 
         if CEF:
-            self.regview = CEFRegView(self.right)
+            self.regview = CEFRegView(self.right, width=800)
         else:
             self.regview = RegView(self.right)
         self.regview.pack(fill=BOTH, expand=TRUE, padx=(0, 5))
