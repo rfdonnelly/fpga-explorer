@@ -3,7 +3,7 @@
 CEF = True
 
 if CEF:
-    from cefpython3 import cefpython as cef
+    from cefpython3 import cefpython as cef # type: ignore
 
 import math
 
@@ -564,9 +564,9 @@ class CEFRegView(ttk.Frame):
             # https://github.com/cztomczak/cefpython/issues/583
 
             # noinspection PyUnresolvedReferences
-            from AppKit import NSApp
+            from AppKit import NSApp # type: ignore
             # noinspection PyUnresolvedReferences
-            import objc
+            import objc # type: ignore
             logger.info("winfo_id={}".format(self.winfo_id()))
             # noinspection PyUnresolvedReferences
             content_view = objc.pyobjc_id(NSApp.windows()[-1].contentView())
