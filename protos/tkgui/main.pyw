@@ -16,7 +16,9 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 
+from typing import List
 from typing import Optional
+from typing import Tuple
 
 # Platforms
 WINDOWS = (platform.system() == "Windows")
@@ -69,7 +71,7 @@ class ConnectorInterface:
     Used to implement connectors for various interaces (e.g. UART, JTAG, etc.)
     """
 
-    def available_ports(self) -> list[str]:
+    def available_ports(self) -> List[str]:
         """Returns a list of available ports to connect to."""
         pass
 
@@ -88,7 +90,7 @@ class ConnectorInterface:
         """Returns the connection status."""
         pass
 
-    def read(self, addr: int) -> tuple[Optional[int], Optional[str]]:
+    def read(self, addr: int) -> Tuple[Optional[int], Optional[str]]:
         """Reads an address.
 
         Assumes a 32-bit address and a 32-bit data word.
@@ -126,7 +128,7 @@ class VirtualConnector(ConnectorInterface):
     def set(self, addr: int, data: int) -> None:
         self.memory[addr] = data
 
-    def available_ports(self) -> list[str]:
+    def available_ports(self) -> List[str]:
         """Returns a list of available ports to connect to."""
         return ["Virtual"]
 
@@ -145,7 +147,7 @@ class VirtualConnector(ConnectorInterface):
         """Returns the connection status."""
         return True
 
-    def read(self, addr: int) -> tuple[Optional[int], Optional[str]]:
+    def read(self, addr: int) -> Tuple[Optional[int], Optional[str]]:
         """Reads an address.
 
         Assumes a 32-bit address and a 32-bit data word.
@@ -153,7 +155,7 @@ class VirtualConnector(ConnectorInterface):
         On success, returns a tuple containing the data and None.
         On failure, returns a tuple containing None and an error message.
         """
-        return self.get(addr)
+        return (self.get(addr), None)
 
     def write(self, addr: int, data: int) -> Optional[str]:
         """Writes an address.
@@ -164,6 +166,8 @@ class VirtualConnector(ConnectorInterface):
         On failure, returns an error message.
         """
         self.set(addr, data)
+
+        return None
 
 connecter = VirtualConnector()
 
