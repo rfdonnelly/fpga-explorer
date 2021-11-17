@@ -2,6 +2,11 @@
 
 A GUI for hardware register debug.
 
+== Schema
+
+The GUI is informed of a design's structure via the register description.
+The schema for the register description is defined by link:schema/register.schema.json[schema/register.schema.json].
+
 == Prototypes
 
 === Tk GUI
