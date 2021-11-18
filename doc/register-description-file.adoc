@@ -200,9 +200,9 @@ Optional.
 * `repr`: The default representation.
 Default: `hex`.
 Optional.
-** `bin`: Binary
-** `dec`: Decimal
-** `hex`: Hexadecimal
+** `bin`: Binary (e.g. `0b0101`)
+** `dec`: Decimal (e.g. `5`)
+** `hex`: Hexadecimal (e.g. `0x5`)
 * `enum`: Enum ID to use for encode/decode.
 Default: None.
 Optional.
