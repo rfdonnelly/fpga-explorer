@@ -117,12 +117,22 @@
             "properties": { "type": { "const": "reg" } }
           },
           "then": {
+            "required": [
+              "fields"
+            ],
             "properties": {
               "fields": {
                 "description": "An array of child element IDs",
                 "type": "array",
                 "items": {
                   "type": "object",
+                  "required": [
+                    "nbits",
+                    "lsb",
+                    "name",
+                    "access",
+                    "reset"
+                  ],
                   "properties": {
                     "nbits": {
                       "description": "Number of bits",
@@ -157,6 +167,9 @@
             }
           },
           "else": {
+            "required": [
+              "children"
+            ],
             "properties": {
               "children": {
                 "description": "An array of child element IDs",
