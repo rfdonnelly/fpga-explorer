@@ -5,6 +5,11 @@
 https://www.python.org/downloads/[Python]::
 Download and install with the `tcl/tk and IDLE` option.
 
+== Project Structure
+
+https://docs.python-guide.org/writing/structure[Structuring Your Python Project]::
+A closer look at Python’s modules and import systems.
+
 == GUI
 
 https://tkdocs.com/[TkDocs]::
